@@ -1,12 +1,12 @@
+import { clawEnvConfig } from '@netko/claw-config'
 import { prisma } from '@netko/claw-repository'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { jwt } from 'better-auth/plugins'
 import { reactStartCookies } from 'better-auth/react-start'
-import { brainEnvConfig } from '../../../../configs/brain-config/src/env'
 
 export const auth = betterAuth({
-  baseURL: brainEnvConfig.app.baseUrl,
+  baseURL: clawEnvConfig.app.baseUrl,
   basePath: '/api/auth',
   database: prismaAdapter(prisma, {
     provider: 'postgresql',
@@ -19,5 +19,5 @@ export const auth = betterAuth({
     }),
     reactStartCookies(),
   ],
-  ...brainEnvConfig.auth,
+  ...clawEnvConfig.auth,
 })

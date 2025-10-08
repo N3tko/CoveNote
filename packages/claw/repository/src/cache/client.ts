@@ -1,4 +1,4 @@
-import { brainEnvConfig } from '@netko/claw-config'
+import { clawEnvConfig } from '@netko/claw-config'
 import { Redis } from 'ioredis'
 
 class RedisCacheClient {
@@ -14,7 +14,7 @@ class RedisCacheClient {
    */
   public static getCache(): Redis {
     if (!RedisCacheClient.cacheInstance) {
-      RedisCacheClient.cacheInstance = new Redis(brainEnvConfig.cache.url, {
+      RedisCacheClient.cacheInstance = new Redis(clawEnvConfig.cache.url, {
         enableReadyCheck: false,
         maxRetriesPerRequest: null,
         lazyConnect: true,
@@ -29,7 +29,7 @@ class RedisCacheClient {
    */
   public static getPublisher(): Redis {
     if (!RedisCacheClient.publisherInstance) {
-      RedisCacheClient.publisherInstance = new Redis(brainEnvConfig.cache.url, {
+      RedisCacheClient.publisherInstance = new Redis(clawEnvConfig.cache.url, {
         enableReadyCheck: false,
         maxRetriesPerRequest: null,
         lazyConnect: true,
@@ -44,7 +44,7 @@ class RedisCacheClient {
    */
   public static getSubscriber(): Redis {
     if (!RedisCacheClient.subscriberInstance) {
-      RedisCacheClient.subscriberInstance = new Redis(brainEnvConfig.cache.url, {
+      RedisCacheClient.subscriberInstance = new Redis(clawEnvConfig.cache.url, {
         enableReadyCheck: false,
         maxRetriesPerRequest: null,
         lazyConnect: true,

@@ -23,17 +23,18 @@ Ever wanted to wrangle a squad of language models, sync your wildest conversatio
 
 ## 🧪 Tech Stack
 
-- **Frontend:**  
-  - [React](https://react.dev/) (with [@tanstack/react-router](https://tanstack.com/router/latest)) ⚛️
+- **Frontend & App Runtime:**  
+  - [React](https://react.dev/) with [@tanstack/react-router](https://tanstack.com/router/latest) and React Start ⚛️
+  - [tRPC](https://trpc.io/) endpoints mounted via router server handlers
   - Vite ⚡️
-  - shadcn/ui component system 🧩
+  - shadcn/ui design system 🧩
   - TypeScript 🦕
 
-- **Backend:**  
+- **Data & Auth:**  
   - Node.js (Bun for package management) 🍞
   - [Prisma ORM](https://www.prisma.io/) with **PostgreSQL** 🐘
-  - Modular service, domain, and repository layers 🗂️
-  - Auth via [better-auth](https://github.com/your-org/better-auth) with Prisma adapter 🔐
+  - Auth via [better-auth](https://github.com/your-org/better-auth) + Prisma adapter 🔐
+  - Optional Redis for caching 🧰
 
 - **Monorepo Tooling:**  
   - [Turborepo](https://turbo.build/) for monorepo management 🏎️
@@ -46,32 +47,36 @@ Ever wanted to wrangle a squad of language models, sync your wildest conversatio
 ```
 Netko/
   apps/
-    hub/        # Frontend (React, TanStack Router, shadcn/ui)
-    brain/      # Backend entrypoint
+    claw/                 # Web app (React + TanStack Router + React Start + tRPC)
+                           # Exposes server handlers for /api/trpc and /api/auth
   packages/
-    brain/
-      domain/   # Domain-driven design: entities, factories, values
-      repository/ # Prisma ORM, database access, migrations
-      service/  # Business logic, auth, config
+    claw/
+      domain/             # Domain-driven design: entities, factories, values
+      repository/         # Prisma schema, migrations, DB access, caching
+      service/            # Business logic, auth config, utilities
     shared/
-      ui/       # Reusable UI components, chat UIs, shadcn/ui wrappers
-      typescript-config/
-      clients/
-  turbo/        # Turborepo generators and templates
+      ui/                 # Reusable UI components (chat UIs, shadcn/ui wrappers)
+      logger/             # Shared logger package
+      typescript-config/  # TS config presets
+    configs/
+      claw-config/        # Runtime env config loader and types
+  turbo/                  # Turborepo generators and templates
 ```
 
-- **apps/hub:**  
-  The main web app, built with React and TanStack Router. Your portal to the multiverse of chat. 🖥️🚪
-- **apps/brain:**  
-  Backend entrypoint, orchestrating services and database access. The brains behind the banter. 🧠
-- **packages/brain/domain:**  
+- **apps/claw:**  
+  The main web app with SSR and API routes. Hosts tRPC at `/api/trpc` and Better Auth at `/api/auth` via TanStack Router server handlers. 🖥️🚪
+- **packages/claw/domain:**  
   Domain logic: entities, value objects, and factories. The DNA of your chat world. 🧬
-- **packages/brain/repository:**  
-  Prisma schema, migrations, and database adapters (PostgreSQL). Where your data finds a home. 🏡
-- **packages/brain/service:**  
-  Business logic, authentication, and configuration. The secret sauce. 🥫
+- **packages/claw/repository:**  
+  Prisma schema, migrations, and database adapters (PostgreSQL), plus optional Redis caching. Where your data finds a home. 🏡
+- **packages/claw/service:**  
+  Business logic, authentication config (`auth`), and supporting utilities. The secret sauce. 🥫
 - **packages/shared/ui:**  
   Design system and chat UI components (shadcn/ui, chat, markdown, audio, etc). The wardrobe and props for your chat stage. 🎭
+- **packages/shared/logger:**  
+  Shared logger utilities and adapters.
+- **packages/configs/claw-config:**  
+  Environment configuration loader and types used across packages.
 
 ---
 
@@ -84,19 +89,33 @@ Ready to fire up your own lab? 🧑‍🔬
    bun install
    ```
 
-2. **Set up your database:**  
-   - Copy `.env.example` to `.env` and configure your PostgreSQL connection. 📝
-   - Run Prisma migrations:
-     ```sh
-     bunx prisma migrate deploy
-     ```
+2. **Configure environment:**  
+   - Copy `apps/claw/sample.env` to `apps/claw/.env` and fill in values. 📝
+   - Required (typical local): `BASE_URL`, `DATABASE_URL`, `AUTH_SECRET`, `ENCRYPTION_KEY`
+   - Optional: `DEV_MODE`, `CACHE_URL` (Redis), `SENTRY_DSN`, OAuth client IDs/secrets
 
-3. **Start the dev environment:**  
+3. **Start databases (optional via Docker):**  
+   ```sh
+   docker compose up -d
+   ```
+   This brings up PostgreSQL (5432) and Redis (6379) using `compose.yml`.
+
+4. **Start the dev environment:**  
    ```sh
    turbo run dev
    ```
+   The app will generate Prisma client, run migrations, and seed dev data automatically.
 
-4. **Open [http://localhost:3000](http://localhost:3000) and start chatting!** 🎉
+5. **Open [http://localhost:3000](http://localhost:3000) and start chatting!** 🎉
+
+Advanced (manual DB ops):
+```sh
+# From repo root
+bun run --cwd packages/claw/repository db:generate
+bun run --env-file=./apps/claw/.env --cwd packages/claw/repository db:migrate   # dev
+bun run --env-file=./apps/claw/.env --cwd packages/claw/repository db:deploy    # deploy
+bun run --env-file=./apps/claw/.env --cwd packages/claw/repository db:seed
+```
 
 ---
 

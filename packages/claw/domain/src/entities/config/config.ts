@@ -13,7 +13,7 @@ const transformSocialProviderSchema = (data: z.infer<typeof _protoSocialProvider
   return data
 }
 
-const _protoBrainConfigSchema = z.object({
+const _protoClawConfigSchema = z.object({
   app: z.object({
     dev: z.boolean().default(false),
     port: z.number().default(3001),
@@ -43,7 +43,7 @@ const _protoBrainConfigSchema = z.object({
 })
 
 const brainSuperRefinement = (
-  config: z.infer<typeof _protoBrainConfigSchema>,
+  config: z.infer<typeof _protoClawConfigSchema>,
   ctx: z.RefinementCtx,
 ) => {
   const enabledProviders = Object.entries(config.auth.socialProviders).filter(
@@ -60,5 +60,5 @@ const brainSuperRefinement = (
   }
 }
 
-export const BrainConfigSchema = _protoBrainConfigSchema.superRefine(brainSuperRefinement)
-export type BrainConfig = z.infer<typeof BrainConfigSchema>
+export const ClawConfigSchema = _protoClawConfigSchema.superRefine(brainSuperRefinement)
+export type ClawConfig = z.infer<typeof ClawConfigSchema>

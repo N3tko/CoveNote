@@ -1,10 +1,10 @@
-import { type BrainConfig, BrainConfigSchema } from '@netko/claw-domain'
+import { type ClawConfig, ClawConfigSchema } from '@netko/claw-domain'
 
 const isEnabled = (args: (string | undefined)[]): boolean => {
   return args.every((arg) => arg !== undefined && arg !== '')
 }
 
-const brainConfig: BrainConfig = {
+const clawConfig: ClawConfig = {
   app: {
     dev: process.env.DEV_MODE === 'true',
     baseUrl: process.env.BASE_URL,
@@ -46,4 +46,4 @@ const brainConfig: BrainConfig = {
   },
 }
 
-export const brainEnvConfig = BrainConfigSchema.parse(brainConfig)
+export const clawEnvConfig = ClawConfigSchema.parse(clawConfig)
