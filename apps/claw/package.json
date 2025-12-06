@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "@elysiajs/eden": "^1.4.5",
+    "@tanstack/react-query": "^5.80.7",
     "@elysiajs/openapi": "^1.4.11",
     "@elysiajs/static": "^1.4.7",
     "@netko/claw-config": "workspace:*",
     "@netko/claw-domain": "workspace:*",
-    "@netko/claw-trpc": "workspace:*",
     "@netko/ui": "workspace:*",
     "clsx": "^2.1.1",
     "elysia": "latest",
@@ -30,7 +30,11 @@
     "react-dom": "^19.2.1",
     "tailwindcss": "4",
     "wouter": "^3.8.1",
-    "zod": "^4.1.13"
+    "zod": "^4.1.13",
+    "zustand": "^5.0.5",
+    "sonner": "^2.0.3",
+    "motion": "^12.17.0",
+    "lucide-react": "^0.513.0"
   },
   "devDependencies": {
     "bun-plugin-tailwind": "^0.1.2",

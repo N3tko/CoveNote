@@ -1,18 +1,21 @@
 import { AnimatedBackground } from '@netko/ui/components/core/animated-background'
-import { createFileRoute, Navigate } from '@tanstack/react-router'
+import { Redirect } from 'wouter'
 import { LoginForm } from '@/components/auth/login-form'
 import { authClient } from '@/lib/auth'
 
-export const Route = createFileRoute('/auth/')({
-  component: Index,
-})
+/**
+ * Auth Page
+ *
+ * The login page with a fancy animated background.
+ * Because even auth pages deserve to look good. 🎨🐱
+ */
 
-function Index() {
+export function AuthPage() {
   const { data, isPending } = authClient.useSession()
-  const session = data?.session
 
-  if (!isPending && session) {
-    return <Navigate to="/chat" />
+  // If already logged in, redirect to chat
+  if (!isPending && data?.session) {
+    return <Redirect to="/chat" />
   }
 
   return (

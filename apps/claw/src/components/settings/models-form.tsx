@@ -1,5 +1,5 @@
-import type { LLMModel, ModelProvider } from '@netko/claw-domain'
-import { ModelProviderEnum } from '@netko/claw-domain'
+import type { LLMModel, LLMProvider as ModelProvider } from '@netko/claw-domain'
+import { LLMProviderEnum as ModelProviderEnum } from '@netko/claw-domain'
 import { Badge } from '@netko/ui/components/shadcn/badge'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
@@ -26,14 +26,24 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@netko/ui/components/shadcn/tooltip'
-// No Switch in UI lib; use Button toggle
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { Cpu, Loader2Icon, Pencil, Plus, SaveIcon, Trash2 } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { useTRPC } from '@/integrations/trpc/react'
+import {
+  useAvailableModels,
+  useCreateModel,
+  useUpdateModel,
+  useDeleteModel,
+} from '@/hooks/api'
 import { authClient } from '@/lib/auth'
+
+/**
+ * Models Form
+ *
+ * Manage LLM model configurations.
+ * Because one AI is never enough. 🤖🐱
+ */
 
 function isPublicModel(model: LLMModel): model is LLMModel & { isPublic: boolean } {
   return typeof (model as unknown as { isPublic?: unknown }).isPublic === 'boolean'
@@ -44,15 +54,13 @@ type ModelsFormProps = {
 }
 
 export function ModelsForm({ className }: ModelsFormProps) {
-  const trpcHttp = useTRPC()
   const { data } = authClient.useSession()
   const user = data?.user
-  const { data: models = [], refetch } = useQuery(trpcHttp.models.getAllModels.queryOptions())
+  const { data: models = [], refetch } = useAvailableModels()
 
-  const createMutation = useMutation(trpcHttp.models.createModel.mutationOptions())
-
-  const updateMutation = useMutation(trpcHttp.models.updateModel.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.models.deleteModel.mutationOptions())
+  const createMutation = useCreateModel()
+  const updateMutation = useUpdateModel()
+  const deleteMutation = useDeleteModel()
 
   const [form, setForm] = React.useState({
     name: '',
@@ -92,7 +100,6 @@ export function ModelsForm({ className }: ModelsFormProps) {
       if (sortBy === 'name') return a.displayName.localeCompare(b.displayName)
       if (sortBy === 'provider')
         return (a.provider as unknown as string).localeCompare(b.provider as unknown as string)
-      // active first
       return Number(b.isActive) - Number(a.isActive)
     })
     return list
@@ -161,7 +168,7 @@ export function ModelsForm({ className }: ModelsFormProps) {
 
   const handleDelete = async (model: LLMModel) => {
     try {
-      await deleteMutation.mutateAsync({ id: model.id })
+      await deleteMutation.mutateAsync(model.id)
       await refetch()
     } catch (err) {
       toast.error(getFriendlyError(err))

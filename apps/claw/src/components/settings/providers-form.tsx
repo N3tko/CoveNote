@@ -1,5 +1,5 @@
-import type { ApiKey, ModelProvider } from '@netko/claw-domain'
-import { ModelProviderEnum } from '@netko/claw-domain'
+import type { LLMByok as ApiKey, LLMProvider as ModelProvider } from '@netko/claw-domain'
+import { LLMProviderEnum as ModelProviderEnum } from '@netko/claw-domain'
 import { Badge } from '@netko/ui/components/shadcn/badge'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
@@ -10,14 +10,23 @@ import {
   CardTitle,
 } from '@netko/ui/components/shadcn/card'
 import { Input } from '@netko/ui/components/shadcn/input'
-import { useMutation, useQuery } from '@tanstack/react-query'
 import { EyeIcon, EyeOffIcon, Key, Loader2Icon, SaveIcon, TrashIcon } from 'lucide-react'
 import * as React from 'react'
-import { useTRPC } from '@/integrations/trpc/react'
+import { useByokKeys, useCreateByok, useUpdateByok, useDeleteByok } from '@/hooks/api'
+
+/**
+ * Providers Form
+ *
+ * Manage API keys for different model providers.
+ * BYOK - Bring Your Own Keys. 🔑🐱
+ */
 
 export function ProvidersForm() {
-  const trpcHttp = useTRPC()
-  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.apiKeys.getApiKeys.queryOptions())
+  const { data: apiKeys = [], refetch } = useByokKeys()
+
+  const createMutation = useCreateByok()
+  const updateMutation = useUpdateByok()
+  const deleteMutation = useDeleteByok()
 
   const [keyValues, setKeyValues] = React.useState<Record<string, string>>({})
   const [showKeys, setShowKeys] = React.useState<Record<string, boolean>>({})
@@ -46,10 +55,6 @@ export function ProvidersForm() {
     setChangedKeys(new Set())
   }, [apiKeysByProvider])
 
-  const createMutation = useMutation(trpcHttp.apiKeys.createApiKey.mutationOptions())
-  const updateMutation = useMutation(trpcHttp.apiKeys.updateApiKey.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.apiKeys.deleteApiKey.mutationOptions())
-
   const handleKeyChange = (provider: ModelProvider, value: string) => {
     setKeyValues((prev) => ({ ...prev, [provider]: value }))
     const existingKey = apiKeysByProvider[provider]
@@ -68,7 +73,7 @@ export function ProvidersForm() {
       const existingKey = apiKeysByProvider[provider]
       if (action === 'delete') {
         if (existingKey) {
-          await deleteMutation.mutateAsync({ id: existingKey.id })
+          await deleteMutation.mutateAsync(existingKey.id)
         }
       } else {
         const key = keyValues[provider]

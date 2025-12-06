@@ -1,13 +1,19 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@netko/ui/components/shadcn/sidebar'
-import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { AppSidebar } from '@/components/core/nav/app-sidebar'
 import { ThemeToggle } from '@/components/core/theme/theme-switcher'
 
-export const Route = createFileRoute('/_authed/chat')({
-  component: RouteComponent,
-})
+/**
+ * Chat Layout
+ *
+ * The main layout for chat pages with sidebar navigation.
+ * Where conversations come to life. And occasionally die. 💬🐱
+ */
 
-function RouteComponent() {
+interface ChatLayoutProps {
+  children: React.ReactNode
+}
+
+export function ChatLayout({ children }: ChatLayoutProps) {
   return (
     <div className="relative flex h-[100dvh] w-screen">
       <SidebarProvider>
@@ -17,9 +23,10 @@ function RouteComponent() {
             <SidebarTrigger />
             <ThemeToggle />
           </div>
-          <Outlet />
+          {children}
         </SidebarInset>
       </SidebarProvider>
     </div>
   )
 }
+

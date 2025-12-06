@@ -8,11 +8,17 @@ import {
   CardTitle,
 } from '@netko/ui/components/shadcn/card'
 import { Separator } from '@radix-ui/react-separator'
-import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { BarsSpinner } from '@/components/core/spinner/bars-spinner'
-import { useTRPC } from '@/integrations/trpc/react'
+import { useAuthMethods } from '@/hooks/api'
 import { socialProviders } from './definitions/values'
+
+/**
+ * Login Form
+ *
+ * The gateway to our chat kingdom.
+ * Pick your poison—I mean, login method. 😏🐱
+ */
 
 // Skeleton loader component for social providers
 function ProvidersLoader() {
@@ -31,9 +37,7 @@ function ProvidersLoader() {
 }
 
 export function LoginForm() {
-  const trpc = useTRPC()
-
-  const { data: providers, isLoading } = useQuery(trpc.auth.getEnabledAuthMethods.queryOptions())
+  const { data: providers, isLoading } = useAuthMethods()
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null)
 
   const enabledProviders = socialProviders.filter((provider) =>

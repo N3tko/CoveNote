@@ -1,6 +1,6 @@
 'use client'
 
-import type { Thread } from '@netko/claw-domain'
+import type { Chat as Thread } from '@netko/claw-domain'
 import {
   DropdownMenu,
   DropdownMenuContent,

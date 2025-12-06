@@ -8,16 +8,15 @@ import { apiRouter } from './api'
 
 const jsonSchema = (schema: z.ZodType) => z.toJSONSchema(schema, { unrepresentable: 'any' })
 
-const app = new Elysia()
-  .use(
-    await staticPlugin({
-      assets: 'src/public',
-      prefix: '/',
-      alwaysStatic: true,
-    }),
-  )
-  // Fallback to index.html for SPA routing
-  .get('*', indexHTML, { detail: { hide: true } })
+const app = new Elysia({
+  serve: {
+    routes: {
+      '/api/*': false,
+      // Mount Auth endpoints
+      '/api/auth/*': auth.handler,
+    },
+  },
+})
   // OpenAPI
   .use(
     openapi({
@@ -37,10 +36,19 @@ const app = new Elysia()
       },
     }),
   )
-  // Mount Auth endpoints
-  .mount(auth.handler)
   // Mount API endpoints
   .use(apiRouter)
+  // Serve static assets
+  .use(
+    await staticPlugin({
+      assets: 'src/public',
+      prefix: '/',
+      alwaysStatic: true,
+    }),
+  )
+  .get('/*', indexHTML, {
+    detail: { hide: true },
+  })
   // Listen on port 3000
   .listen(3000)
 

@@ -1,4 +1,4 @@
-import type { Assistant } from '@netko/claw-domain'
+import type { LLMAssistant as Assistant } from '@netko/claw-domain'
 import {
   DropdownMenu,
   DropdownMenuContent,

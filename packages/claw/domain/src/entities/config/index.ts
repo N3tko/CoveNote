@@ -16,9 +16,9 @@ const transformSocialProviderSchema = (data: z.infer<typeof _protoSocialProvider
 const _protoClawConfigSchema = z.object({
   app: z.object({
     dev: z.boolean().default(false),
-    port: z.number().default(3001),
+    port: z.number().default(3000),
     cors: z.array(z.string()).default(['http://localhost:3000', 'http://localhost:5173']),
-    baseUrl: z.string().url(),
+    baseUrl: z.url(),
     sentryDsn: z.string().optional(),
     encryptionKey: z.string(),
   }),
@@ -33,7 +33,7 @@ const _protoClawConfigSchema = z.object({
     emailAndPassword: z.object({
       enabled: z.boolean(),
     }),
-    trustedOrigins: z.array(z.string()).default(['http://localhost:3001', 'http://localhost:5173']),
+    trustedOrigins: z.array(z.string()).default(['http://localhost:3000', 'http://localhost:5173']),
     socialProviders: z.object({
       github: _protoSocialProviderSchema.transform(transformSocialProviderSchema).optional(),
       google: _protoSocialProviderSchema.transform(transformSocialProviderSchema).optional(),

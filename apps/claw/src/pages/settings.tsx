@@ -1,4 +1,3 @@
-// Settings route
 import { Avatar, AvatarFallback, AvatarImage } from '@netko/ui/components/shadcn/avatar'
 import { Badge } from '@netko/ui/components/shadcn/badge'
 import { Button } from '@netko/ui/components/shadcn/button'
@@ -10,9 +9,7 @@ import {
   CardTitle,
 } from '@netko/ui/components/shadcn/card'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { motion } from 'framer-motion'
-// import { Separator } from '@netko/ui/components/shadcn/separator'
+import { motion } from 'motion/react'
 import {
   BadgeCheck,
   BarChart3,
@@ -28,13 +25,17 @@ import {
   User,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useLocation } from 'wouter'
 import { ModelsForm } from '@/components/settings/models-form'
 import { ProvidersForm } from '@/components/settings/providers-form'
 import { authClient } from '@/lib/auth'
 
-export const Route = createFileRoute('/_authed/settings/')({
-  component: SettingsPage,
-})
+/**
+ * Settings Page
+ *
+ * Where users come to tweak, customize, and occasionally break things.
+ * Handle with care (or not, we have backups). ⚙️🐱
+ */
 
 type SettingsSection =
   | 'profile'
@@ -57,10 +58,8 @@ const navItems: { key: SettingsSection; label: string; icon: React.ElementType }
   { key: 'appearance', label: 'Appearance', icon: Palette },
 ]
 
-//
-
-function SettingsPage() {
-  const navigate = useNavigate()
+export function SettingsPage() {
+  const [, navigate] = useLocation()
   const { data } = authClient.useSession()
   const user = data?.user
   const session = data?.session
@@ -75,17 +74,15 @@ function SettingsPage() {
     queryKey: ['auth-sessions'],
     queryFn: async () => {
       const result = await authClient.listSessions()
-      // Normalize to array in case the client returns a wrapped object
       if (Array.isArray(result)) return result
-      // @ts-expect-error - handle potential shapes: { sessions: [...] } or { data: [...] }
+      // @ts-expect-error - handle potential shapes
       if (result && Array.isArray(result.sessions)) return result.sessions
       if (result && Array.isArray(result.data)) return result.data
       return []
     },
   })
-  //
 
-  // --- Active Sessions helpers ---
+  // Session helpers
   const getClientInfo = (userAgent?: string | null) => {
     const ua = (userAgent || '').toLowerCase()
     const isFirefox = ua.includes('firefox')
@@ -136,7 +133,7 @@ function SettingsPage() {
     const currentToken = session?.token
     const normalized: ListedSession[] = Array.isArray(listedSessions)
       ? (listedSessions as ListedSession[])
-      : ([] as ListedSession[])
+      : []
 
     return normalized.map((s) => ({
       id: s.id,
@@ -149,15 +146,13 @@ function SettingsPage() {
     }))
   }, [listedSessions, session?.token])
 
-  //
-
   return (
-    <div className="relative flex w-full h-full p-6">
+    <div className="relative flex w-full h-full p-6 overflow-y-auto">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-4 flex items-center">
           <Button
             variant="outline"
-            onClick={() => navigate({ to: '/chat' })}
+            onClick={() => navigate('/chat')}
             className="gap-2 rounded-full border-border/60 bg-background/60 backdrop-blur-sm hover:bg-accent/40"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -356,7 +351,7 @@ function SettingsPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    We’re still wiring up this section.
+                    We're still wiring up this section.
                   </p>
                 </CardContent>
               </Card>
@@ -367,3 +362,4 @@ function SettingsPage() {
     </div>
   )
 }
+

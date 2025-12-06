@@ -1,25 +1,32 @@
-import type { Assistant, LLMModel } from '@netko/claw-domain'
+import type { LLMAssistant as Assistant, LLMModel } from '@netko/claw-domain'
 import { ChatInput } from '@netko/ui/components/chat/chat-input'
 import { MessagesList } from '@netko/ui/components/chat/messages-list'
 import type { UIMessage } from '@netko/ui/components/chat/messages-list/definitions/types'
 import { NewChatView } from '@netko/ui/components/chat/new-chat-view'
 import { AnimatedBackground } from '@netko/ui/components/core/animated-background'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
-import { useSubscription } from '@trpc/tanstack-react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
+import { useLocation } from 'wouter'
 import { BarsSpinner } from '@/components/core/spinner/bars-spinner'
-import { useTRPC } from '@/integrations/trpc/react'
+import { useActiveModels, useAssistants, chatKeys } from '@/hooks/api'
+import { useWebSocket } from '@/hooks/use-websocket'
 import { authClient } from '@/lib/auth'
+import { eden } from '@/lib/eden'
 import { useChatStore, useCurrentLLMModel, useWebSearchEnabled } from '@/stores/chat'
 import type { ChatViewProps } from './definitions/types'
 
+/**
+ * Chat View Component
+ *
+ * The main chat interface where users converse with AI assistants.
+ * Where the magic happens. And occasionally the chaos. 💬🐱
+ */
+
 export function ChatView({ threadId, thread }: ChatViewProps) {
-  const trpcHttp = useTRPC()
   const { data } = authClient.useSession()
   const user = data?.user
-  const navigate = useNavigate()
+  const [, navigate] = useLocation()
   const queryClient = useQueryClient()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -40,124 +47,44 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
   const [realtimeMessages, setRealtimeMessages] = useState<UIMessage[]>([])
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null)
 
-  // Real-time subscription using TRPC with useSubscription hook
-  useSubscription({
-    ...trpcHttp.threads.onThreadMessage.subscriptionOptions({
-      threadId: threadId ?? '',
-      lastEventId: lastEventId || undefined,
-    }),
+  // WebSocket for real-time updates
+  useWebSocket({
+    threadId,
+    lastEventId,
     enabled: !!threadId,
-    onData: (event) => {
-      type ThreadEventBase = {
-        type:
-          | 'message_created'
-          | 'message_streaming'
-          | 'message_completed'
-          | 'message_error'
-          | string
-        timestamp?: number | string
-      }
-      type ThreadEvent =
-        | (ThreadEventBase & {
-            messageId?: string
-            content?: string
-            message?: UIMessage | ({ createdAt?: string | number | Date } & Record<string, unknown>)
-          })
-        | { type: string; parseError: unknown }
-
-      try {
-        const data = event.data as ThreadEvent
-        switch (data.type) {
-          case 'message_created': {
-            // Add new message to realtime state
-            if ('message' in data && data.message) {
-              const newMessage: UIMessage = {
-                ...(data.message as UIMessage),
-                createdAt: new Date(
-                  (data.message as { createdAt?: string | number | Date })?.createdAt ?? Date.now(),
-                ),
-                isGenerating: false,
-              }
-
-              setRealtimeMessages((prev) => {
-                // Check if message already exists to avoid duplicates
-                const exists = prev.find((m) => m.id === newMessage.id)
-                if (exists) return prev
-                return [...prev, newMessage]
-              })
-
-              // If it's an assistant message, mark as streaming
-              if (newMessage.role === 'ASSISTANT') {
-                setStreamingMessageId(newMessage.id)
-                setIsGenerating(true)
-              }
-            }
-            break
-          }
-
-          case 'message_streaming': {
-            // Update streaming message content
-            if ('messageId' in data && data.messageId && 'content' in data) {
-              setRealtimeMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === data.messageId
-                    ? { ...msg, content: (data as { content?: string }).content || '' }
-                    : msg,
-                ),
-              )
-            }
-            break
-          }
-
-          case 'message_completed': {
-            // Update final message and stop generation
-            if ('message' in data && data.message) {
-              const completedMessage: UIMessage = {
-                ...(data.message as UIMessage),
-                createdAt: new Date(
-                  (data.message as { createdAt?: string | number | Date })?.createdAt ?? Date.now(),
-                ),
-                isGenerating: false,
-              }
-
-              setRealtimeMessages((prev) =>
-                prev.map((msg) => (msg.id === completedMessage.id ? completedMessage : msg)),
-              )
-            }
-
-            setStreamingMessageId(null)
-            setIsGenerating(false)
-            break
-          }
-
-          case 'message_error': {
-            setStreamingMessageId(null)
-            setIsGenerating(false)
-            toast.error('Generation failed. Please try again.')
-            break
-          }
-
-          default:
-        }
-
-        // Update last event ID for reconnection
-        if ('timestamp' in data && data.timestamp) {
-          setLastEventId(String(data.timestamp))
-        }
-      } catch (error) {
-        console.error('❌ Error processing subscription event:', error)
+    onMessageCreated: (message) => {
+      setRealtimeMessages((prev) => {
+        const exists = prev.find((m) => m.id === message.id)
+        if (exists) return prev
+        return [...prev, message]
+      })
+      if (message.role === 'ASSISTANT') {
+        setStreamingMessageId(message.id)
+        setIsGenerating(true)
       }
     },
-    onError: (error) => {
-      console.error('❌ Error processing subscription event:', error)
-      toast.error('Connection lost - attempting to reconnect... 🔄')
+    onMessageStreaming: (messageId, content) => {
+      setRealtimeMessages((prev) =>
+        prev.map((msg) => (msg.id === messageId ? { ...msg, content } : msg)),
+      )
+    },
+    onMessageCompleted: (message) => {
+      setRealtimeMessages((prev) =>
+        prev.map((msg) => (msg.id === message.id ? message : msg)),
+      )
+      setStreamingMessageId(null)
+      setIsGenerating(false)
+    },
+    onMessageError: () => {
+      setStreamingMessageId(null)
+      setIsGenerating(false)
+      toast.error('Generation failed. Please try again.')
     },
   })
 
-  // Messages come from thread prop and are updated via subscription
-
-  const { data: llmModels = [] } = useQuery(trpcHttp.threads.getLLMModels.queryOptions())
-  const { data: assistants = [] } = useQuery(trpcHttp.threads.getAssistants.queryOptions())
+  // Fetch models and assistants using Eden hooks
+  const { data: llmModels = [] } = useActiveModels()
+  const { data: assistants = [] } = useAssistants()
 
   // Initialize realtime messages from thread messages
   useEffect(() => {
@@ -180,38 +107,6 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
     }
   }, [realtimeMessages.length])
 
-  // Mutations
-  const createThreadMutation = useMutation(
-    trpcHttp.threads.createThread.mutationOptions({
-      onSuccess: (data: { thread: { id: string } }) => {
-        navigate({
-          to: '/chat/$threadId',
-          params: { threadId: data.thread.id },
-          replace: true,
-        })
-        // Invalidate sidebar threads to show the new thread
-        queryClient.invalidateQueries({ queryKey: [['threads', 'getSidebarThreads']] })
-        setIsGenerating(false)
-      },
-      onError: () => {
-        toast.error('Failed to start conversation 😿')
-        setIsGenerating(false)
-      },
-    }),
-  )
-
-  const sendMessageMutation = useMutation(
-    trpcHttp.threads.sendMessage.mutationOptions({
-      onSuccess: () => {
-        // Real-time subscription handles updates automatically
-      },
-      onError: () => {
-        toast.error('Failed to send message 😿')
-        setIsGenerating(false)
-      },
-    }),
-  )
-
   // Initialize selected model from store or default to first available
   useEffect(() => {
     if (llmModels.length === 0) return
@@ -226,7 +121,6 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
 
   useEffect(() => {
     if (assistants.length > 0 && !selectedAssistant) {
-      // Use thread's assistant if available, otherwise use first public assistant
       const threadAssistant = thread?.assistant
       const defaultAssistant =
         threadAssistant || assistants.find((a) => a.isPublic) || assistants[0]
@@ -236,7 +130,7 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
 
   // Handle message submission
   const handleSendMessage = useCallback(
-    (message: string) => {
+    async (message: string) => {
       if (!message.trim() || isGenerating) return
 
       // Resolve assistant fallback
@@ -247,12 +141,11 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
         assistants[0] ||
         null
 
-      // Ensure assistant state reflects resolved value
       if (!selectedAssistant && resolvedAssistant) {
         setSelectedAssistant(resolvedAssistant)
       }
 
-      // Resolve model fallback from store or first available
+      // Resolve model fallback
       const resolvedModel =
         (selectedModelId && llmModels.find((m) => m.id === selectedModelId)) || llmModels[0]
 
@@ -261,37 +154,31 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
         return
       }
 
-      // Sync store with resolved model if store was empty
       if (!currentLLMModel || currentLLMModel.id !== resolvedModel.id) {
         setCurrentLLMModel(resolvedModel)
       }
 
-      const payload = {
-        assistantId: resolvedAssistant.id,
-        llmModel: resolvedModel.id,
-        isWebSearchEnabled,
-      }
-
-      if (!threadId) {
-        // Create new thread with this message
-        setIsGenerating(true)
-        createThreadMutation.mutate({
-          title: message.slice(0, 50),
-          description: message,
-          content: message,
-          ...payload,
-        })
-      } else {
-        // Send message to existing thread
-        setIsGenerating(true)
-        sendMessageMutation.mutate({
-          threadId,
-          content: message,
-          ...payload,
-        })
-      }
-
       setChatInputValue('')
+      setIsGenerating(true)
+
+      try {
+        if (!threadId) {
+          // Create new thread - Note: This endpoint needs to be added to the API
+          // For now, we'll show a toast as the endpoint doesn't exist yet
+          toast.info('Creating new chat... (API endpoint pending)')
+          setIsGenerating(false)
+        } else {
+          // Send message to existing thread - Note: This endpoint needs to be added
+          toast.info('Sending message... (API endpoint pending)')
+          setIsGenerating(false)
+        }
+        
+        // Invalidate sidebar cache
+        queryClient.invalidateQueries({ queryKey: chatKeys.sidebar() })
+      } catch (error) {
+        toast.error('Failed to send message 😿')
+        setIsGenerating(false)
+      }
     },
     [
       threadId,
@@ -301,11 +188,9 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
       currentLLMModel,
       assistants,
       llmModels,
-      isWebSearchEnabled,
-      createThreadMutation,
-      sendMessageMutation,
       setCurrentLLMModel,
       thread?.assistant,
+      queryClient,
     ],
   )
 
@@ -317,7 +202,7 @@ export function ChatView({ threadId, thread }: ChatViewProps) {
     [setCurrentLLMModel],
   )
 
-  // Handle file attachments (placeholder for now)
+  // Handle file attachments (placeholder)
   const handleFilesSelected = useCallback((files: FileList) => {
     toast.info(`Selected ${files.length} file(s) - attachments coming soon! 📎`)
   }, [])

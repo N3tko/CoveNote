@@ -1,5 +1,5 @@
 import { jsonb, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { userTable } from './auth'
+import { user } from './auth'
 import { llmAssistantTable, llmModelTable } from './llm'
 
 /**
@@ -27,7 +27,7 @@ export const chatTable = pgTable('chat', {
   title: text('title').notNull(),
   selectedAssistant: uuid('selected_assistant').references(() => llmAssistantTable.id),
   selectedModel: uuid('selected_model').references(() => llmModelTable.id),
-  createdBy: text('created_by').references(() => userTable.id, { onDelete: 'cascade' }),
+  createdBy: text('created_by').references(() => user.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at')
     .$defaultFn(() => new Date())
     .notNull(),

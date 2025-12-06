@@ -8,7 +8,7 @@ const clawConfig: ClawConfig = {
   app: {
     dev: process.env.DEV_MODE === 'true',
     baseUrl: process.env.BASE_URL ?? '',
-    port: Number(process.env.PORT ?? 3001),
+    port: Number(process.env.PORT ?? 3000),
     cors: process.env.CORS?.split(',') ?? [],
     encryptionKey: process.env.ENCRYPTION_KEY ?? '',
   },

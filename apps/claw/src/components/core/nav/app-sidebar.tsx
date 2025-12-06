@@ -1,4 +1,4 @@
-import { AssistantSchema, ThreadSchema } from '@netko/claw-domain'
+import { ChatSchema, LLMAssistantSchema } from '@netko/claw-domain'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
   CommandDialog,
@@ -14,9 +14,7 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from '@netko/ui/components/shadcn/sidebar'
-import { useQuery } from '@tanstack/react-query'
-import { useRouter } from '@tanstack/react-router'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import {
   ChevronRight,
   Loader2,
@@ -27,6 +25,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useLocation } from 'wouter'
 import { AssistantSwitcher } from '@/components/core/nav/assistant-switcher'
 import {
   type ConversationGroup,
@@ -34,51 +33,53 @@ import {
   NavConversations,
 } from '@/components/core/nav/nav-conversations'
 import { NavUser } from '@/components/core/nav/nav-user'
-import { useTRPC } from '@/integrations/trpc/react'
+import { useAssistants, useSidebarChats } from '@/hooks/api'
 import { authClient } from '@/lib/auth'
 import { useChatStore } from '@/stores/chat'
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const trpcHttp = useTRPC()
-  const router = useRouter()
-  const { data: assistants, isLoading } = useQuery(trpcHttp.threads.getAssistants.queryOptions())
-  const { data: threads, isLoading: isThreadsLoading } = useQuery(
-    trpcHttp.threads.getSidebarThreads.queryOptions(),
-  )
+/**
+ * App Sidebar
+ *
+ * The navigation hub for our chat app.
+ * Where conversations live and assistants thrive. 🐱
+ */
 
-  // Netko Store integration - because we're keeping track of the good stuff! 🎯
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [, navigate] = useLocation()
+  
+  // Fetch data using Eden hooks
+  const { data: assistants, isLoading } = useAssistants()
+  const { data: threads, isLoading: isThreadsLoading } = useSidebarChats()
+
+  // Store integration
   const { currentAssistant, setCurrentAssistant } = useChatStore()
 
   const [conversationGroups, setConversationGroups] = useState<ConversationGroup[]>([])
-
   const { data: user } = authClient.useSession()
   const [isCommandOpen, setIsCommandOpen] = useState(false)
   const [isNewChatHovered, setIsNewChatHovered] = useState(false)
 
   useEffect(() => {
     if (threads && !isThreadsLoading) {
-      setConversationGroups(groupConversationsByTime(threads.map((c) => ThreadSchema.parse(c))))
+      setConversationGroups(groupConversationsByTime(threads.map((c) => ChatSchema.parse(c))))
     }
   }, [threads, isThreadsLoading])
 
   useEffect(() => {
     if (assistants && assistants.length > 0 && !currentAssistant) {
-      const firstAssistant = AssistantSchema.parse(assistants[0])
+      const firstAssistant = LLMAssistantSchema.parse(assistants[0])
       setCurrentAssistant(firstAssistant)
     }
   }, [assistants, currentAssistant, setCurrentAssistant])
 
   const handleCreateChat = () => {
-    router.navigate({
-      to: '/chat',
-    })
+    navigate('/chat')
   }
 
   const handleCommand = (command: string) => {
     console.log('Running command:', command)
     setIsCommandOpen(false)
 
-    // TODO: Implement command actions
     switch (command) {
       case 'new-chat':
         handleCreateChat()
@@ -87,11 +88,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         console.log('Searching conversations... 🔍')
         break
       case 'settings':
-        router.navigate({ to: '/settings' })
+        navigate('/settings')
         break
       default:
         break
     }
+  }
+
+  const handleThreadClick = (threadId: string) => {
+    navigate(`/chat/${threadId}`)
+    setIsCommandOpen(false)
   }
 
   return (
@@ -105,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </div>
             ) : (
               <AssistantSwitcher
-                assistants={assistants?.map((c) => AssistantSchema.parse(c)) ?? []}
+                assistants={assistants?.map((c) => LLMAssistantSchema.parse(c)) ?? []}
                 currentAssistant={currentAssistant}
                 onAssistantChange={setCurrentAssistant}
               />
@@ -254,10 +260,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {threads?.map((thread) => (
               <CommandItem
                 key={thread.id}
-                onSelect={() => {
-                  console.log('Navigating to conversation:', thread.title)
-                  setIsCommandOpen(false)
-                }}
+                onSelect={() => handleThreadClick(thread.id)}
                 className="group relative flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none transition-colors duration-300 aria-selected:bg-primary/10 hover:bg-accent"
               >
                 <MessageSquare className="h-4 w-4" />

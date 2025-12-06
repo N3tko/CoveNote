@@ -1,5 +1,5 @@
 import { boolean, pgEnum, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core'
-import { userTable } from './auth'
+import { user } from './auth'
 
 /**
  * +---------------------+
@@ -27,7 +27,7 @@ export const llmModelTable = pgTable('llm_model', {
   description: text('description'),
   isActive: boolean('is_active').notNull().default(true),
   isPublic: boolean('is_public').notNull().default(false),
-  createdBy: text('created_by').references(() => userTable.id, { onDelete: 'cascade' }),
+  createdBy: text('created_by').references(() => user.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at')
     .$defaultFn(() => new Date())
     .notNull(),
@@ -54,7 +54,7 @@ export const llmByokTable = pgTable(
     encryptedKey: text('encrypted_key').notNull(),
     isActive: boolean('is_active').notNull().default(true),
     createdBy: text('created_by')
-      .references(() => userTable.id, { onDelete: 'cascade' })
+      .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
     createdAt: timestamp('created_at')
       .$defaultFn(() => new Date())
@@ -86,7 +86,7 @@ export const llmAssistantTable = pgTable('llm_assistant', {
   description: text('description'),
   isPublic: boolean('is_public').notNull().default(false),
   systemPrompt: text('system_prompt').notNull(),
-  createdBy: text('created_by').references(() => userTable.id, { onDelete: 'cascade' }),
+  createdBy: text('created_by').references(() => user.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at')
     .$defaultFn(() => new Date())
     .notNull(),

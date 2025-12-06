@@ -1,5 +1,5 @@
-import type { ApiKey, ModelProvider } from '@netko/claw-domain'
-import { ModelProviderEnum } from '@netko/claw-domain'
+import type { LLMByok as ApiKey, LLMProvider as ModelProvider } from '@netko/claw-domain'
+import { LLMProviderEnum as ModelProviderEnum } from '@netko/claw-domain'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
   Dialog,
@@ -10,12 +10,18 @@ import {
   DialogTitle,
 } from '@netko/ui/components/shadcn/dialog'
 import { Input } from '@netko/ui/components/shadcn/input'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { EyeIcon, EyeOffIcon, Loader2Icon, SaveIcon, TrashIcon } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { useTRPC } from '@/integrations/trpc/react'
+import { useByokKeys, useCreateByok, useUpdateByok, useDeleteByok } from '@/hooks/api'
+
+/**
+ * BYOK Dialog
+ *
+ * Manage API keys for different providers.
+ * Your keys, your way. 🔑🐱
+ */
 
 interface ByokDialogProps {
   open: boolean
@@ -30,8 +36,11 @@ const providerConfig = {
 }
 
 export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
-  const trpcHttp = useTRPC()
-  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.apiKeys.getApiKeys.queryOptions())
+  const { data: apiKeys = [], refetch } = useByokKeys()
+
+  const createMutation = useCreateByok()
+  const updateMutation = useUpdateByok()
+  const deleteMutation = useDeleteByok()
 
   const [keyValues, setKeyValues] = React.useState<Record<string, string>>({})
   const [showKeys, setShowKeys] = React.useState<Record<string, boolean>>({})
@@ -40,7 +49,7 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
 
   const apiKeysByProvider = React.useMemo(() => {
     const map: Partial<Record<ModelProvider, ApiKey>> = {}
-    apiKeys.forEach((key: any) => {
+    apiKeys.forEach((key: ApiKey) => {
       map[key.provider as ModelProvider] = {
         ...key,
         lastUsedAt: key.lastUsedAt ? new Date(key.lastUsedAt) : null,
@@ -62,10 +71,6 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
     }
   }, [apiKeysByProvider, open])
 
-  const createMutation = useMutation(trpcHttp.apiKeys.createApiKey.mutationOptions())
-  const updateMutation = useMutation(trpcHttp.apiKeys.updateApiKey.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.apiKeys.deleteApiKey.mutationOptions())
-
   const handleMutation = async (provider: ModelProvider, action: 'save' | 'delete') => {
     setLoadingStates((prev) => ({ ...prev, [provider]: true }))
     try {
@@ -77,7 +82,7 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
           existingKey &&
           confirm(`Are you sure you want to remove the ${providerName} API key?`)
         ) {
-          await deleteMutation.mutateAsync({ id: existingKey.id })
+          await deleteMutation.mutateAsync(existingKey.id)
           toast.success(`${providerName} API key removed.`)
         }
       } else if (action === 'save') {
@@ -101,8 +106,9 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
         return newSet
       })
       await refetch()
-    } catch (error: any) {
-      toast.error(error.message || 'An unexpected error occurred.')
+    } catch (error: unknown) {
+      const err = error as { message?: string }
+      toast.error(err.message || 'An unexpected error occurred.')
     } finally {
       setLoadingStates((prev) => ({ ...prev, [provider]: false }))
     }

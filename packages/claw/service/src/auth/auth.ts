@@ -1,5 +1,6 @@
 import { passkey } from '@better-auth/passkey'
 import { clawEnvConfig } from '@netko/claw-config'
+import { account, jwks, session, user, verification } from '@netko/claw-domain'
 import { db } from '@netko/claw-repository'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
@@ -11,6 +12,14 @@ export const auth = betterAuth({
   basePath: '/api/auth',
   database: drizzleAdapter(db, {
     provider: 'pg',
+    schema: {
+      user,
+      session,
+      account,
+      verification,
+      passkey,
+      jwks,
+    },
   }),
   advanced: {
     cookiePrefix: 'netko',
