@@ -30,9 +30,6 @@
     "db:migrate": {
       "cache": false,
       "persistent": true
-    },
-    "db:deploy": {
-      "cache": false
     }
   }
 }

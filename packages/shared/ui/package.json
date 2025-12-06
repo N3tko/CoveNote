@@ -14,6 +14,8 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-switch": "^1.2.6",
+    "@hookform/resolvers": "^5.2.2",
+    "react-hook-form": "^7.64.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.544.0",
@@ -40,8 +42,7 @@
     "@turbo/gen": "^2.4.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "tailwindcss": "^4.0.8  ",
-    "typescript": "^5"
+    "tailwindcss": "^4.0.8  "
   },
   "exports": {
     "./globals.css": "./src/styles/globals.css",

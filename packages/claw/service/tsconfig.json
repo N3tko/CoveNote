@@ -3,6 +3,8 @@
   "compilerOptions": {
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "declaration": false,
+    "declarationMap": false
   }
 }
