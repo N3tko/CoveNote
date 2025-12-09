@@ -1,5 +1,4 @@
-import { type Chat, chatTable } from '@netko/claw-domain'
-import type { Context } from '@netko/claw-domain/schemas/context'
+import { type AuthenticatedContext, type Chat, chatTable } from '@netko/claw-domain'
 import { db } from '@netko/claw-repository'
 import { and, eq } from 'drizzle-orm'
 
@@ -12,7 +11,7 @@ export interface UpdateChatInput {
 export const updateChat = async (
   chatId: string,
   updates: UpdateChatInput,
-  ctx: Context,
+  ctx: AuthenticatedContext,
 ): Promise<Chat | null> => {
   const [updatedChat] = await db
     .update(chatTable)
@@ -25,5 +24,3 @@ export const updateChat = async (
 
   return updatedChat || null
 }
-
-

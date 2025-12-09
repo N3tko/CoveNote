@@ -13,10 +13,11 @@
     "@netko/claw-repository": "workspace:*",
     "@netko/logger": "workspace:*",
     "@netko/typescript-config": "workspace:*",
-    "@openrouter/ai-sdk-provider": "^0.7.2",
+    "@openrouter/ai-sdk-provider": "^1.4.1",
     "ai": "^5.0.0-canary.14",
     "better-auth": "^1.4.5",
     "drizzle-orm": "^0.44.6",
     "jose": "^6.0.11"
   }
 }
+  

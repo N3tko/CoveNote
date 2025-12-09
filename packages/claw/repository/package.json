@@ -16,7 +16,7 @@
     "@netko/claw-domain": "workspace:*",
     "@netko/claw-config": "workspace:*",
     "@netko/typescript-config": "workspace:*",
-    "drizzle-orm": "^0.45.0",
+    "drizzle-orm": "^0.44.6",
     "ioredis": "^5.8.0",
     "zod": "^4.1.11"
   }
