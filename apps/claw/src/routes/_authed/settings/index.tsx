@@ -30,7 +30,7 @@ import {
 import { useMemo, useState } from 'react'
 import { ModelsForm } from '@/components/settings/models-form'
 import { ProvidersForm } from '@/components/settings/providers-form'
-import { authClient } from '@/lib/auth'
+import { authClient } from '@/integrations/auth'
 
 export const Route = createFileRoute('/_authed/settings/')({
   component: SettingsPage,

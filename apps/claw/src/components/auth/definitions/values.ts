@@ -1,5 +1,5 @@
 import { RiAppleFill, RiDiscordFill, RiGithubFill, RiGoogleFill } from '@remixicon/react'
-import { authClient } from '@/lib/auth'
+import { authClient } from '@/integrations/auth'
 
 export const SocialProviderEnum = {
   GOOGLE: 'google',

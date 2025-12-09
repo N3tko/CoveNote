@@ -1,5 +1,4 @@
-import type { ApiKey, ModelProvider } from '@netko/claw-domain'
-import { ModelProviderEnum } from '@netko/claw-domain'
+import type { LLMByok, LLMProvider } from '@netko/claw-domain'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
   Dialog,
@@ -22,16 +21,19 @@ interface ByokDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-const providerConfig = {
-  [ModelProviderEnum.OPENAI]: { name: 'OpenAI', icon: '🤖' },
-  [ModelProviderEnum.OPENROUTER]: { name: 'OpenRouter', icon: '🌐' },
-  [ModelProviderEnum.OLLAMA]: { name: 'Ollama', icon: '🦙' },
-  [ModelProviderEnum.CUSTOM]: { name: 'Custom', icon: '⚡' },
+// LLM Provider enum values matching the database
+const LLM_PROVIDERS = ['openai', 'ollama', 'openrouter', 'custom'] as const
+
+const providerConfig: Record<LLMProvider, { name: string; icon: string }> = {
+  openai: { name: 'OpenAI', icon: '🤖' },
+  openrouter: { name: 'OpenRouter', icon: '🌐' },
+  ollama: { name: 'Ollama', icon: '🦙' },
+  custom: { name: 'Custom', icon: '⚡' },
 }
 
 export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
   const trpcHttp = useTRPC()
-  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.apiKeys.getApiKeys.queryOptions())
+  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.llmByok.getAll.queryOptions())
 
   const [keyValues, setKeyValues] = React.useState<Record<string, string>>({})
   const [showKeys, setShowKeys] = React.useState<Record<string, boolean>>({})
@@ -39,12 +41,12 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
   const [loadingStates, setLoadingStates] = React.useState<Record<string, boolean>>({})
 
   const apiKeysByProvider = React.useMemo(() => {
-    const map: Partial<Record<ModelProvider, ApiKey>> = {}
-    apiKeys.forEach((key: any) => {
-      map[key.provider as ModelProvider] = {
+    const map: Partial<Record<LLMProvider, LLMByok>> = {}
+    apiKeys.forEach((key: LLMByok) => {
+      map[key.provider as LLMProvider] = {
         ...key,
-        lastUsedAt: key.lastUsedAt ? new Date(key.lastUsedAt) : null,
         createdAt: new Date(key.createdAt),
+        updatedAt: new Date(key.updatedAt),
       }
     })
     return map
@@ -53,7 +55,7 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
   React.useEffect(() => {
     if (open) {
       const initialValues: Record<string, string> = {}
-      for (const provider of Object.values(ModelProviderEnum)) {
+      for (const provider of LLM_PROVIDERS) {
         const existingKey = apiKeysByProvider[provider]
         initialValues[provider] = existingKey?.encryptedKey || ''
       }
@@ -62,11 +64,11 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
     }
   }, [apiKeysByProvider, open])
 
-  const createMutation = useMutation(trpcHttp.apiKeys.createApiKey.mutationOptions())
-  const updateMutation = useMutation(trpcHttp.apiKeys.updateApiKey.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.apiKeys.deleteApiKey.mutationOptions())
+  const createMutation = useMutation(trpcHttp.llmByok.create.mutationOptions())
+  const updateMutation = useMutation(trpcHttp.llmByok.update.mutationOptions())
+  const deleteMutation = useMutation(trpcHttp.llmByok.delete.mutationOptions())
 
-  const handleMutation = async (provider: ModelProvider, action: 'save' | 'delete') => {
+  const handleMutation = async (provider: LLMProvider, action: 'save' | 'delete') => {
     setLoadingStates((prev) => ({ ...prev, [provider]: true }))
     try {
       const existingKey = apiKeysByProvider[provider]
@@ -87,10 +89,10 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
           return
         }
         if (existingKey) {
-          await updateMutation.mutateAsync({ id: existingKey.id, key })
+          await updateMutation.mutateAsync({ id: existingKey.id, encryptedKey: key })
           toast.success(`${providerName} API key updated.`)
         } else {
-          await createMutation.mutateAsync({ provider, key })
+          await createMutation.mutateAsync({ provider, encryptedKey: key })
           toast.success(`${providerName} API key saved.`)
         }
       }
@@ -101,14 +103,15 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
         return newSet
       })
       await refetch()
-    } catch (error: any) {
-      toast.error(error.message || 'An unexpected error occurred.')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.'
+      toast.error(errorMessage)
     } finally {
       setLoadingStates((prev) => ({ ...prev, [provider]: false }))
     }
   }
 
-  const handleKeyChange = (provider: ModelProvider, value: string) => {
+  const handleKeyChange = (provider: LLMProvider, value: string) => {
     setKeyValues((prev) => ({ ...prev, [provider]: value }))
     const existingKey = apiKeysByProvider[provider]
     const hasChanged = value !== (existingKey?.encryptedKey || '')
@@ -133,7 +136,7 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
 
         <div className="flex flex-col gap-2 py-4">
           <AnimatePresence>
-            {Object.values(ModelProviderEnum).map((provider, index) => {
+            {LLM_PROVIDERS.map((provider, index) => {
               const config = providerConfig[provider]
               const existingKey = apiKeysByProvider[provider]
               const isLoading = loadingStates[provider]

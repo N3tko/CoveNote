@@ -1,6 +1,6 @@
 'use client'
 
-import type { Thread } from '@netko/claw-domain'
+import type { Chat } from '@netko/claw-domain'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,7 +33,7 @@ import {
 export type ConversationGroup = {
   label: string
   icon: LucideIcon
-  conversations: Thread[]
+  conversations: Chat[]
 }
 
 const listVariants = {
@@ -91,8 +91,8 @@ export function NavConversations({
                             onClick={(e) => {
                               e.preventDefault()
                               router.navigate({
-                                to: '/chat/$threadId',
-                                params: { threadId: conversation.id },
+                                to: '/chat/$chatId',
+                                params: { chatId: conversation.id },
                               })
                             }}
                             className="flex w-full items-center group/item"
@@ -147,7 +147,7 @@ export function NavConversations({
 }
 
 // Helper function to group conversations by time periods
-export function groupConversationsByTime(conversations: Thread[]): ConversationGroup[] {
+export function groupConversationsByTime(conversations: Chat[]): ConversationGroup[] {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000)

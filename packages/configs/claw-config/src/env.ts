@@ -7,16 +7,16 @@ const isEnabled = (args: (string | undefined)[]): boolean => {
 const clawConfig: ClawConfig = {
   app: {
     dev: process.env.DEV_MODE === 'true',
-    baseUrl: process.env.BASE_URL,
-    port: Number(process.env.PORT),
-    cors: process.env.CORS?.split(',') ?? undefined,
-    encryptionKey: process.env.ENCRYPTION_KEY,
+    baseUrl: process.env.BASE_URL ?? '',
+    port: Number(process.env.PORT ?? 3000),
+    cors: process.env.CORS?.split(',') ?? [],
+    encryptionKey: process.env.ENCRYPTION_KEY ?? '',
   },
   cache: {
-    url: process.env.CACHE_URL,
+    url: process.env.CACHE_URL ?? '',
   },
   db: {
-    url: process.env.DATABASE_URL,
+    url: process.env.DATABASE_URL ?? '',
   },
   auth: {
     secret: process.env.AUTH_SECRET,

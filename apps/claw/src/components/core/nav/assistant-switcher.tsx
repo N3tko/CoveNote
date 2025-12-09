@@ -1,4 +1,5 @@
-import type { Assistant } from '@netko/claw-domain'
+import { useAssistants } from '@/hooks/use-assistants'
+import type { LLMAssistant } from '@netko/claw-domain'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,33 +17,64 @@ import {
 } from '@netko/ui/components/shadcn/sidebar'
 import { cn } from '@netko/ui/lib/utils'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Bot, ChevronsUpDown, Plus, Sparkles } from 'lucide-react'
+import { Bot, ChevronsUpDown, Loader2, Plus, Sparkles } from 'lucide-react'
 import * as React from 'react'
+import { toast } from 'sonner'
 
 interface AssistantSwitcherProps {
-  assistants: Assistant[]
-  currentAssistant?: Assistant | null
-  onAssistantChange?: (assistant: Assistant) => void
+  onAssistantChange?: (assistant: LLMAssistant) => void
 }
 
-export function AssistantSwitcher({
-  assistants,
-  currentAssistant,
-  onAssistantChange,
-}: AssistantSwitcherProps) {
+export function AssistantSwitcher({ onAssistantChange }: AssistantSwitcherProps) {
   const { isMobile } = useSidebar()
+  const { assistants, currentAssistant, isLoading, selectAssistant } = useAssistants()
 
-  // Use the store-provided currentAssistant or fallback to first assistant 🎯
-  const activeAssistant = currentAssistant || assistants[0]
   const [isOpen, setIsOpen] = React.useState(false)
 
-  if (!activeAssistant) {
-    return null
+  // Use the store-provided currentAssistant or fallback to first assistant
+  const activeAssistant = currentAssistant || assistants[0]
+
+  const handleAssistantSelect = (assistant: LLMAssistant) => {
+    selectAssistant(assistant)
+    onAssistantChange?.(assistant)
+    toast.success(`Switched to ${assistant.name}`)
+    setIsOpen(false)
   }
 
-  const handleAssistantSelect = (assistant: Assistant) => {
-    onAssistantChange?.(assistant)
-    setIsOpen(false)
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" disabled>
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary">
+              <Loader2 className="size-4 animate-spin" />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">Loading...</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
+
+  // Show empty state
+  if (!activeAssistant || assistants.length === 0) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" disabled>
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary">
+              <Bot className="size-4" />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">No assistants</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
   }
 
   return (

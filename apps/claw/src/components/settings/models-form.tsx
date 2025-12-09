@@ -1,5 +1,4 @@
-import type { LLMModel, ModelProvider } from '@netko/claw-domain'
-import { ModelProviderEnum } from '@netko/claw-domain'
+import type { LLMModel, LLMProvider } from '@netko/claw-domain'
 import { Badge } from '@netko/ui/components/shadcn/badge'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
@@ -26,14 +25,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@netko/ui/components/shadcn/tooltip'
-// No Switch in UI lib; use Button toggle
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Cpu, Loader2Icon, Pencil, Plus, SaveIcon, Trash2 } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { useTRPC } from '@/integrations/trpc/react'
-import { authClient } from '@/lib/auth'
+import { authClient } from '@/integrations/auth'
+
+// LLM Provider enum values matching the database
+const LLM_PROVIDERS = ['openai', 'ollama', 'openrouter', 'custom'] as const
 
 function isPublicModel(model: LLMModel): model is LLMModel & { isPublic: boolean } {
   return typeof (model as unknown as { isPublic?: unknown }).isPublic === 'boolean'
@@ -47,17 +48,17 @@ export function ModelsForm({ className }: ModelsFormProps) {
   const trpcHttp = useTRPC()
   const { data } = authClient.useSession()
   const user = data?.user
-  const { data: models = [], refetch } = useQuery(trpcHttp.models.getAllModels.queryOptions())
+  const { data: models = [], refetch } = useQuery(trpcHttp.llmModels.getAvailable.queryOptions())
 
-  const createMutation = useMutation(trpcHttp.models.createModel.mutationOptions())
+  const createMutation = useMutation(trpcHttp.llmModels.create.mutationOptions())
 
-  const updateMutation = useMutation(trpcHttp.models.updateModel.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.models.deleteModel.mutationOptions())
+  const updateMutation = useMutation(trpcHttp.llmModels.update.mutationOptions())
+  const deleteMutation = useMutation(trpcHttp.llmModels.delete.mutationOptions())
 
   const [form, setForm] = React.useState({
+    slug: '',
     name: '',
-    displayName: '',
-    provider: ModelProviderEnum.CUSTOM as ModelProvider,
+    provider: 'custom' as LLMProvider,
     description: '',
     isActive: true,
   })
@@ -65,23 +66,23 @@ export function ModelsForm({ className }: ModelsFormProps) {
   const [editOpen, setEditOpen] = React.useState(false)
   const [editForm, setEditForm] = React.useState({
     id: '',
+    slug: '',
     name: '',
-    displayName: '',
-    provider: ModelProviderEnum.CUSTOM as ModelProvider,
+    provider: 'custom' as LLMProvider,
     description: '',
     isActive: true,
     isPublic: false,
   })
 
   const [search, setSearch] = React.useState('')
-  const [providerFilter, setProviderFilter] = React.useState<ModelProvider | 'ALL'>('ALL')
+  const [providerFilter, setProviderFilter] = React.useState<LLMProvider | 'ALL'>('ALL')
   const [sortBy, setSortBy] = React.useState<'name' | 'provider' | 'active'>('name')
 
   const filteredSorted = React.useMemo(() => {
     const term = search.trim().toLowerCase()
     const list = models.filter((m) => {
       const matchesTerm = term
-        ? m.name.toLowerCase().includes(term) || m.displayName.toLowerCase().includes(term)
+        ? m.slug.toLowerCase().includes(term) || m.name.toLowerCase().includes(term)
         : true
       const matchesProvider =
         providerFilter === 'ALL' ? true : (m.provider as unknown as string) === providerFilter
@@ -89,7 +90,7 @@ export function ModelsForm({ className }: ModelsFormProps) {
     })
 
     list.sort((a, b) => {
-      if (sortBy === 'name') return a.displayName.localeCompare(b.displayName)
+      if (sortBy === 'name') return a.name.localeCompare(b.name)
       if (sortBy === 'provider')
         return (a.provider as unknown as string).localeCompare(b.provider as unknown as string)
       // active first
@@ -118,29 +119,28 @@ export function ModelsForm({ className }: ModelsFormProps) {
 
   const isAuthoredByUser = (model: LLMModel, userId?: string) => {
     if (!userId) return false
-    const maybe = model as unknown as { author?: unknown; authorId?: unknown }
-    return maybe.author === userId || maybe.authorId === userId
+    return model.createdBy === userId
   }
 
   const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!form.name.trim() || !form.displayName.trim()) {
-      toast.error('Please provide Name and Display Name')
+    if (!form.slug.trim() || !form.name.trim()) {
+      toast.error('Please provide Slug and Name')
       return
     }
     try {
       await createMutation.mutateAsync({
+        slug: form.slug,
         name: form.name,
-        displayName: form.displayName,
         provider: form.provider,
         description: form.description || null,
         isActive: form.isActive,
       })
       toast.success('Model added')
       setForm({
+        slug: '',
         name: '',
-        displayName: '',
-        provider: ModelProviderEnum.CUSTOM,
+        provider: 'custom',
         description: '',
         isActive: true,
       })
@@ -171,10 +171,10 @@ export function ModelsForm({ className }: ModelsFormProps) {
   const openEdit = (model: LLMModel) => {
     setEditForm({
       id: model.id,
+      slug: model.slug,
       name: model.name,
-      displayName: model.displayName,
-      provider: (model.provider as unknown as ModelProvider) ?? ModelProviderEnum.CUSTOM,
-      description: '',
+      provider: (model.provider as unknown as LLMProvider) ?? 'custom',
+      description: model.description ?? '',
       isActive: model.isActive,
       isPublic: isPublicModel(model) ? model.isPublic : false,
     })
@@ -186,8 +186,8 @@ export function ModelsForm({ className }: ModelsFormProps) {
     try {
       await updateMutation.mutateAsync({
         id: editForm.id,
+        slug: editForm.slug,
         name: editForm.name,
-        displayName: editForm.displayName,
         provider: editForm.provider,
         description: editForm.description || null,
         isActive: editForm.isActive,
@@ -225,10 +225,10 @@ export function ModelsForm({ className }: ModelsFormProps) {
               <select
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                 value={providerFilter}
-                onChange={(e) => setProviderFilter(e.target.value as ModelProvider | 'ALL')}
+                onChange={(e) => setProviderFilter(e.target.value as LLMProvider | 'ALL')}
               >
                 <option value="ALL">All</option>
-                {Object.values(ModelProviderEnum).map((p) => (
+                {LLM_PROVIDERS.map((p) => (
                   <option key={p} value={p}>
                     {p}
                   </option>
@@ -251,18 +251,18 @@ export function ModelsForm({ className }: ModelsFormProps) {
 
           <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-6 gap-2">
             <div className="md:col-span-2">
-              <Label className="text-xs">Name</Label>
+              <Label className="text-xs">Slug</Label>
               <Input
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                value={form.slug}
+                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                 placeholder="e.g., gpt-4o-mini, my-awesome-model"
               />
             </div>
             <div className="md:col-span-2">
               <Label className="text-xs">Display name</Label>
               <Input
-                value={form.displayName}
-                onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="e.g., GPT-4o Mini, My Awesome Model"
               />
             </div>
@@ -271,11 +271,9 @@ export function ModelsForm({ className }: ModelsFormProps) {
               <select
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                 value={form.provider}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, provider: e.target.value as ModelProvider }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, provider: e.target.value as LLMProvider }))}
               >
-                {Object.values(ModelProviderEnum).map((p) => (
+                {LLM_PROVIDERS.map((p) => (
                   <option key={p} value={p}>
                     {p}
                   </option>
@@ -331,7 +329,7 @@ export function ModelsForm({ className }: ModelsFormProps) {
                   className="rounded-xl border bg-gradient-to-br from-background/60 to-background p-3 md:p-4 flex items-start justify-between backdrop-blur-sm hover:shadow-sm transition-shadow"
                 >
                   <div className="flex-1 pr-4">
-                    <div className="font-medium">{m.displayName}</div>
+                    <div className="font-medium">{m.name}</div>
                     <div className="mt-2 flex flex-wrap gap-1.5 items-center">
                       <Badge variant="outline" className="bg-background/40">
                         {m.provider}
@@ -420,18 +418,18 @@ export function ModelsForm({ className }: ModelsFormProps) {
           <form onSubmit={handleUpdate} className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div>
-                <Label className="text-xs">Name</Label>
+                <Label className="text-xs">Slug</Label>
                 <Input
-                  value={editForm.name}
-                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                  value={editForm.slug}
+                  onChange={(e) => setEditForm((f) => ({ ...f, slug: e.target.value }))}
                   placeholder="e.g., gpt-4o-mini"
                 />
               </div>
               <div>
                 <Label className="text-xs">Display name</Label>
                 <Input
-                  value={editForm.displayName}
-                  onChange={(e) => setEditForm((f) => ({ ...f, displayName: e.target.value }))}
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="e.g., GPT-4o Mini"
                 />
               </div>
@@ -451,10 +449,10 @@ export function ModelsForm({ className }: ModelsFormProps) {
                   className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                   value={editForm.provider}
                   onChange={(e) =>
-                    setEditForm((f) => ({ ...f, provider: e.target.value as ModelProvider }))
+                    setEditForm((f) => ({ ...f, provider: e.target.value as LLMProvider }))
                   }
                 >
-                  {Object.values(ModelProviderEnum).map((p) => (
+                  {LLM_PROVIDERS.map((p) => (
                     <option key={p} value={p}>
                       {p}
                     </option>

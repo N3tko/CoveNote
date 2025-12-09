@@ -1,3 +1,4 @@
+import type { AppRouter } from '@netko/claw-trpc'
 import { QueryClient } from '@tanstack/react-query'
 import {
   createTRPCClient,
@@ -9,7 +10,6 @@ import {
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
 import superjson from 'superjson'
 import { TRPCProvider } from '@/integrations/trpc/react'
-import type { AppRouter } from '@/trpc'
 
 export const trpcClient = createTRPCClient<AppRouter>({
   links: [

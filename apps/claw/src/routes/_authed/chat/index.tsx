@@ -2,9 +2,9 @@ import { createFileRoute } from '@tanstack/react-router'
 import { ChatView } from '@/components/chat/chat-view'
 
 export const Route = createFileRoute('/_authed/chat/')({
-  component: Index,
+  component: RouteComponent,
 })
 
-function Index() {
-  return <ChatView />
+function RouteComponent() {
+  return <ChatView chatId={null} />
 }

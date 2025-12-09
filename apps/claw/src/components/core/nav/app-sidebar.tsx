@@ -1,4 +1,4 @@
-import { AssistantSchema, ThreadSchema } from '@netko/claw-domain'
+import { ChatSchema } from '@netko/claw-domain'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
   CommandDialog,
@@ -27,27 +27,25 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { AssistantSwitcher } from '@/components/core/nav/assistant-switcher'
 import {
   type ConversationGroup,
   groupConversationsByTime,
   NavConversations,
 } from '@/components/core/nav/nav-conversations'
 import { NavUser } from '@/components/core/nav/nav-user'
+import { authClient } from '@/integrations/auth'
 import { useTRPC } from '@/integrations/trpc/react'
-import { authClient } from '@/lib/auth'
-import { useChatStore } from '@/stores/chat'
+import WorkspaceSwitcher from './workspace-switcher'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const trpcHttp = useTRPC()
   const router = useRouter()
-  const { data: assistants, isLoading } = useQuery(trpcHttp.threads.getAssistants.queryOptions())
-  const { data: threads, isLoading: isThreadsLoading } = useQuery(
-    trpcHttp.threads.getSidebarThreads.queryOptions(),
+  const { data: assistants, isLoading } = useQuery(trpcHttp.assistants.getAll.queryOptions())
+  const { data: chats, isLoading: isChatsLoading } = useQuery(
+    trpcHttp.chats.getSidebar.queryOptions(),
   )
 
   // Netko Store integration - because we're keeping track of the good stuff! 🎯
-  const { currentAssistant, setCurrentAssistant } = useChatStore()
 
   const [conversationGroups, setConversationGroups] = useState<ConversationGroup[]>([])
 
@@ -56,17 +54,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isNewChatHovered, setIsNewChatHovered] = useState(false)
 
   useEffect(() => {
-    if (threads && !isThreadsLoading) {
-      setConversationGroups(groupConversationsByTime(threads.map((c) => ThreadSchema.parse(c))))
+    if (chats && !isChatsLoading) {
+      setConversationGroups(groupConversationsByTime(chats.map((c) => ChatSchema.parse(c))))
     }
-  }, [threads, isThreadsLoading])
-
-  useEffect(() => {
-    if (assistants && assistants.length > 0 && !currentAssistant) {
-      const firstAssistant = AssistantSchema.parse(assistants[0])
-      setCurrentAssistant(firstAssistant)
-    }
-  }, [assistants, currentAssistant, setCurrentAssistant])
+  }, [chats, isChatsLoading])
 
   const handleCreateChat = () => {
     router.navigate({
@@ -104,11 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Loader2 className="h-4 w-4 animate-spin" />
               </div>
             ) : (
-              <AssistantSwitcher
-                assistants={assistants?.map((c) => AssistantSchema.parse(c)) ?? []}
-                currentAssistant={currentAssistant}
-                onAssistantChange={setCurrentAssistant}
-              />
+              <WorkspaceSwitcher />
             )}
 
             <div className="flex gap-2">
@@ -251,17 +238,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </CommandGroup>
 
           <CommandGroup heading="Recent Conversations">
-            {threads?.map((thread) => (
+            {chats?.map((chat) => (
               <CommandItem
-                key={thread.id}
+                key={chat.id}
                 onSelect={() => {
-                  console.log('Navigating to conversation:', thread.title)
+                  console.log('Navigating to conversation:', chat.title)
                   setIsCommandOpen(false)
                 }}
                 className="group relative flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none transition-colors duration-300 aria-selected:bg-primary/10 hover:bg-accent"
               >
                 <MessageSquare className="h-4 w-4" />
-                <span className="flex-1 truncate">{thread.title}</span>
+                <span className="flex-1 truncate">{chat.title}</span>
                 <motion.div
                   className="absolute right-2 opacity-0 transition-opacity group-hover:opacity-100"
                   initial={false}

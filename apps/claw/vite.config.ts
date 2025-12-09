@@ -14,7 +14,7 @@ export default defineConfig(() => {
       }),
       tailwindcss(),
       tanstackStart(),
-      ...(isProduction ? [nitro({ config: { preset: 'bun' } })] : []),
+      ...(isProduction ? [nitro({ preset: 'bun' })] : []),
       viteReact(),
     ],
   }

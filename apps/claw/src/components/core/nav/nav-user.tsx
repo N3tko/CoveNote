@@ -22,7 +22,7 @@ import { ChevronsUpDown, Database, HelpCircle, LogOut, Settings, Sparkles } from
 import { useState } from 'react'
 import type { AuthUser } from '@/components/auth/definitions/types'
 // import { ByokDialog } from '@/components/core/nav-dialogs/byok-dialog'
-import { authClient } from '@/lib/auth'
+import { authClient } from '@/integrations/auth'
 
 const menuItemVariants = {
   hidden: { opacity: 0, x: -20 },

@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
-import { createContext } from '@/integrations/trpc/init'
-import { appRouter } from '@/trpc'
+import { appRouter, createContext } from '@netko/claw-trpc'
 
 function handler({ request }: { request: Request }) {
   return fetchRequestHandler({

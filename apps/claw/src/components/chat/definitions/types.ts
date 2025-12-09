@@ -1,6 +1,6 @@
-import type { Thread } from '@netko/claw-domain'
+import type { Chat } from '@netko/claw-domain'
 
 export interface ChatViewProps {
-  threadId?: string
-  thread?: Thread
+  chatId?: string
+  chat?: Chat
 }

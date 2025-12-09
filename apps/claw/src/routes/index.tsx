@@ -1,6 +1,6 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { BarsSpinner } from '@/components/core/spinner/bars-spinner'
-import { authClient } from '@/lib/auth'
+import { authClient } from '@/integrations/auth'
 
 export const Route = createFileRoute('/')({
   component: Index,

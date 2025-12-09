@@ -1,5 +1,4 @@
-import type { ApiKey, ModelProvider } from '@netko/claw-domain'
-import { ModelProviderEnum } from '@netko/claw-domain'
+import type { LLMByok, LLMProvider } from '@netko/claw-domain'
 import { Badge } from '@netko/ui/components/shadcn/badge'
 import { Button } from '@netko/ui/components/shadcn/button'
 import {
@@ -15,9 +14,12 @@ import { EyeIcon, EyeOffIcon, Key, Loader2Icon, SaveIcon, TrashIcon } from 'luci
 import * as React from 'react'
 import { useTRPC } from '@/integrations/trpc/react'
 
+// LLM Provider enum values matching the database
+const LLM_PROVIDERS = ['openai', 'ollama', 'openrouter', 'custom'] as const
+
 export function ProvidersForm() {
   const trpcHttp = useTRPC()
-  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.apiKeys.getApiKeys.queryOptions())
+  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.llmByok.getAll.queryOptions())
 
   const [keyValues, setKeyValues] = React.useState<Record<string, string>>({})
   const [showKeys, setShowKeys] = React.useState<Record<string, boolean>>({})
@@ -25,12 +27,12 @@ export function ProvidersForm() {
   const [loadingStates, setLoadingStates] = React.useState<Record<string, boolean>>({})
 
   const apiKeysByProvider = React.useMemo(() => {
-    const map: Partial<Record<ModelProvider, ApiKey>> = {}
-    apiKeys.forEach((key: ApiKey) => {
-      map[key.provider as ModelProvider] = {
+    const map: Partial<Record<LLMProvider, LLMByok>> = {}
+    apiKeys.forEach((key: LLMByok) => {
+      map[key.provider as LLMProvider] = {
         ...key,
-        lastUsedAt: key.lastUsedAt ? new Date(key.lastUsedAt) : null,
         createdAt: new Date(key.createdAt),
+        updatedAt: new Date(key.updatedAt),
       }
     })
     return map
@@ -38,7 +40,7 @@ export function ProvidersForm() {
 
   React.useEffect(() => {
     const initialValues: Record<string, string> = {}
-    for (const provider of Object.values(ModelProviderEnum)) {
+    for (const provider of LLM_PROVIDERS) {
       const existingKey = apiKeysByProvider[provider]
       initialValues[provider] = existingKey?.encryptedKey || ''
     }
@@ -46,11 +48,11 @@ export function ProvidersForm() {
     setChangedKeys(new Set())
   }, [apiKeysByProvider])
 
-  const createMutation = useMutation(trpcHttp.apiKeys.createApiKey.mutationOptions())
-  const updateMutation = useMutation(trpcHttp.apiKeys.updateApiKey.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.apiKeys.deleteApiKey.mutationOptions())
+  const createMutation = useMutation(trpcHttp.llmByok.create.mutationOptions())
+  const updateMutation = useMutation(trpcHttp.llmByok.update.mutationOptions())
+  const deleteMutation = useMutation(trpcHttp.llmByok.delete.mutationOptions())
 
-  const handleKeyChange = (provider: ModelProvider, value: string) => {
+  const handleKeyChange = (provider: LLMProvider, value: string) => {
     setKeyValues((prev) => ({ ...prev, [provider]: value }))
     const existingKey = apiKeysByProvider[provider]
     const hasChanged = value !== (existingKey?.encryptedKey || '')
@@ -62,7 +64,7 @@ export function ProvidersForm() {
     })
   }
 
-  const handleSaveOrDelete = async (provider: ModelProvider, action: 'save' | 'delete') => {
+  const handleSaveOrDelete = async (provider: LLMProvider, action: 'save' | 'delete') => {
     setLoadingStates((prev) => ({ ...prev, [provider]: true }))
     try {
       const existingKey = apiKeysByProvider[provider]
@@ -73,9 +75,9 @@ export function ProvidersForm() {
       } else {
         const key = keyValues[provider]
         if (existingKey) {
-          await updateMutation.mutateAsync({ id: existingKey.id, key })
+          await updateMutation.mutateAsync({ id: existingKey.id, encryptedKey: key })
         } else {
-          await createMutation.mutateAsync({ provider, key })
+          await createMutation.mutateAsync({ provider, encryptedKey: key })
         }
       }
       setChangedKeys((prev) => {
@@ -101,12 +103,12 @@ export function ProvidersForm() {
         <CardDescription>Connect your preferred model providers</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {[ModelProviderEnum.OPENROUTER].map((provider) => {
-          const existingKey = apiKeysByProvider[provider as ModelProvider]
+        {(['openrouter'] as const).map((provider) => {
+          const existingKey = apiKeysByProvider[provider as LLMProvider]
           const isLoading = loadingStates[provider]
           const hasChanges = changedKeys.has(provider)
 
-          const label = provider === ModelProviderEnum.OPENROUTER ? 'OpenRouter' : provider
+          const label = provider === 'openrouter' ? 'OpenRouter' : provider
 
           return (
             <div
@@ -129,7 +131,7 @@ export function ProvidersForm() {
                   <Input
                     type={showKeys[provider] ? 'text' : 'password'}
                     value={keyValues[provider] || ''}
-                    onChange={(e) => handleKeyChange(provider as ModelProvider, e.target.value)}
+                    onChange={(e) => handleKeyChange(provider as LLMProvider, e.target.value)}
                     placeholder={`Enter your ${label} API key`}
                     className="pr-10 h-11 text-base"
                   />
@@ -152,7 +154,7 @@ export function ProvidersForm() {
 
                 <div className="flex items-center gap-2">
                   <Button
-                    onClick={() => handleSaveOrDelete(provider as ModelProvider, 'save')}
+                    onClick={() => handleSaveOrDelete(provider as LLMProvider, 'save')}
                     disabled={isLoading || !hasChanges}
                     className="gap-2"
                     variant="outline"
@@ -165,7 +167,7 @@ export function ProvidersForm() {
                     Save
                   </Button>
                   <Button
-                    onClick={() => handleSaveOrDelete(provider as ModelProvider, 'delete')}
+                    onClick={() => handleSaveOrDelete(provider as LLMProvider, 'delete')}
                     disabled={isLoading || !existingKey}
                     className="gap-2"
                     variant="ghost"
