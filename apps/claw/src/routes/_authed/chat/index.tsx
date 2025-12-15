@@ -6,5 +6,5 @@ export const Route = createFileRoute('/_authed/chat/')({
 })
 
 function RouteComponent() {
-  return <ChatView chatId={null} />
+  return <ChatView />
 }

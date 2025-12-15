@@ -14,7 +14,7 @@ function RouteComponent() {
     data: chat,
     isLoading,
     isError,
-  } = useQuery(trpcHttp.chats.getById.queryOptions({ chatId: chatId as string }))
+  } = useQuery(trpcHttp.chats.getById.queryOptions({ chatId: chatId }))
 
   if (isError || (!isLoading && !chat)) {
     return <Navigate to="/chat" replace />

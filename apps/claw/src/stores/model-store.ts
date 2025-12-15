@@ -6,11 +6,11 @@ interface ModelState {
   // Models
   models: LLMModel[]
   currentModel: LLMModel | null
-  
+
   // UI state
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   setModels: (models: LLMModel[]) => void
   setCurrentModel: (model: LLMModel) => void
@@ -91,5 +91,3 @@ export const useModelStore = create<ModelState>()(
     },
   ),
 )
-
-

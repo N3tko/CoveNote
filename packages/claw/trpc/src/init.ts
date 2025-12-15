@@ -1,6 +1,6 @@
 import type { Context } from '@netko/claw-domain'
-import { createLogger } from '@netko/logger'
 import { auth } from '@netko/claw-service'
+import { createLogger } from '@netko/logger'
 import { initTRPC, TRPCError } from '@trpc/server'
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch'
 import superjson from 'superjson'

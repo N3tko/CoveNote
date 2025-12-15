@@ -1,32 +1,7 @@
-import type { AppRouter } from '@netko/claw-trpc'
 import { QueryClient } from '@tanstack/react-query'
-import {
-  createTRPCClient,
-  httpBatchLink,
-  httpSubscriptionLink,
-  loggerLink,
-  splitLink,
-} from '@trpc/client'
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
 import superjson from 'superjson'
-import { TRPCProvider } from '@/integrations/trpc/react'
-
-export const trpcClient = createTRPCClient<AppRouter>({
-  links: [
-    loggerLink(),
-    splitLink({
-      condition: (op) => op.type === 'subscription',
-      true: httpSubscriptionLink({
-        transformer: superjson,
-        url: '/api/trpc',
-      }),
-      false: httpBatchLink({
-        transformer: superjson,
-        url: '/api/trpc',
-      }),
-    }),
-  ],
-})
+import { httpTrpcClient, TRPCProvider } from '@/integrations/trpc'
 
 export function getContext() {
   const queryClient = new QueryClient({
@@ -37,7 +12,7 @@ export function getContext() {
   })
 
   const serverHelpers = createTRPCOptionsProxy({
-    client: trpcClient,
+    client: httpTrpcClient,
     queryClient: queryClient,
   })
   return {
@@ -54,7 +29,7 @@ export function Provider({
   queryClient: QueryClient
 }) {
   return (
-    <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+    <TRPCProvider trpcClient={httpTrpcClient} queryClient={queryClient}>
       {children}
     </TRPCProvider>
   )

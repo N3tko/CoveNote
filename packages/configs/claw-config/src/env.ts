@@ -6,8 +6,8 @@ const isEnabled = (args: (string | undefined)[]): boolean => {
 
 const clawConfig: ClawConfig = {
   app: {
-    dev: process.env.DEV_MODE === 'true',
-    baseUrl: process.env.BASE_URL ?? '',
+    dev: process.env.NODE_ENV !== 'production',
+    baseUrl: process.env.BASE_URL ?? 'http://localhost:3000',
     port: Number(process.env.PORT ?? 3000),
     cors: process.env.CORS?.split(',') ?? [],
     encryptionKey: process.env.ENCRYPTION_KEY ?? '',

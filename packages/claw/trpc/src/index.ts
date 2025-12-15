@@ -19,16 +19,3 @@ export type AppRouter = typeof appRouter
 
 // Re-export init utilities for use in the app
 export { createContext, mergeRouters, protectedProcedure, publicProcedure, router } from './init'
-
-// Re-export event utilities for emitting chat events
-export {
-  chatEvents,
-  emitChatEvent,
-  emitMessageCompleted,
-  emitMessageCreated,
-  emitMessageError,
-  emitMessageStreaming,
-  getChatChannel,
-  type ChatEventPayload,
-  type ChatEventType,
-} from './events'

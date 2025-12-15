@@ -6,11 +6,11 @@ interface AssistantState {
   // Assistants
   assistants: LLMAssistant[]
   currentAssistant: LLMAssistant | null
-  
+
   // UI state
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   setAssistants: (assistants: LLMAssistant[]) => void
   setCurrentAssistant: (assistant: LLMAssistant) => void
@@ -91,5 +91,3 @@ export const useAssistantStore = create<AssistantState>()(
     },
   ),
 )
-
-
