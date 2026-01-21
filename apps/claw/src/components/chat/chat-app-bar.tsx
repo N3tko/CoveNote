@@ -1,25 +1,26 @@
 import type { LLMAssistant } from '@netko/claw-domain'
-import { Avatar, AvatarFallback, AvatarImage } from '@netko/ui/components/shadcn/avatar'
+import { Archive, Bot, MoreHorizontal, Plus, Settings, Share2, Trash2 } from 'lucide-react'
+import * as React from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@netko/ui/components/shadcn/breadcrumb'
-import { Button } from '@netko/ui/components/shadcn/button'
+} from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from '@netko/ui/components/shadcn/dropdown-menu'
-import { SidebarTrigger } from '@netko/ui/components/shadcn/sidebar'
-import { Archive, Bot, MoreHorizontal, Plus, Settings, Share2, Trash2 } from 'lucide-react'
-import * as React from 'react'
+} from '@/components/ui/dropdown-menu'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 
 interface ChatAppBarProps {
   assistants?: LLMAssistant[]
@@ -85,7 +86,7 @@ export function ChatAppBar({
           <BreadcrumbList className="gap-1 sm:gap-1.5">
             <BreadcrumbItem>
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger>
                   <Button variant="ghost" className="h-auto pl-2 pr-0 py-1 gap-2 hover:bg-accent">
                     <Avatar className="size-5">
                       <AvatarImage
@@ -109,25 +110,27 @@ export function ChatAppBar({
                   side="bottom"
                   sideOffset={4}
                 >
-                  <DropdownMenuLabel className="text-muted-foreground text-xs">
-                    Assistants
-                  </DropdownMenuLabel>
-                  {assistants.map((asst, index) => (
-                    <DropdownMenuItem
-                      key={asst.id}
-                      onClick={() => handleAssistantSelect(asst)}
-                      className="gap-2 p-2"
-                    >
-                      <Avatar className="size-6">
-                        <AvatarImage src={getAssistantAvatar(asst)} alt={asst.name} />
-                        <AvatarFallback className="text-xs">
-                          {getAssistantInitials(asst.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {asst.name}
-                      <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-                    </DropdownMenuItem>
-                  ))}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-muted-foreground text-xs">
+                      Assistants
+                    </DropdownMenuLabel>
+                    {assistants.map((asst, index) => (
+                      <DropdownMenuItem
+                        key={asst.id}
+                        onClick={() => handleAssistantSelect(asst)}
+                        className="gap-2 p-2"
+                      >
+                        <Avatar className="size-6">
+                          <AvatarImage src={getAssistantAvatar(asst)} alt={asst.name} />
+                          <AvatarFallback className="text-xs">
+                            {getAssistantInitials(asst.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {asst.name}
+                        <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="gap-2 p-2">
                     <div className="bg-background flex size-6 items-center justify-center rounded-md border">
@@ -149,7 +152,7 @@ export function ChatAppBar({
       </div>
 
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger>
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <MoreHorizontal className="h-4 w-4" />
             <span className="sr-only">Chat options</span>

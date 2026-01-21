@@ -1,19 +1,4 @@
 import { ChatSchema } from '@netko/claw-domain'
-import { Button } from '@netko/ui/components/shadcn/button'
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@netko/ui/components/shadcn/command'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-} from '@netko/ui/components/shadcn/sidebar'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -33,17 +18,43 @@ import {
   NavConversations,
 } from '@/components/core/nav/nav-conversations'
 import { NavUser } from '@/components/core/nav/nav-user'
+import { Button } from '@/components/ui/button'
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+} from '@/components/ui/sidebar'
 import { authClient } from '@/integrations/auth'
-import { useTRPC } from '@/integrations/trpc/react'
+import { client } from '@/integrations/eden'
 import WorkspaceSwitcher from './workspace-switcher'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const trpcHttp = useTRPC()
   const router = useRouter()
-  const { data: assistants, isLoading } = useQuery(trpcHttp.assistants.getAll.queryOptions())
-  const { data: chats, isLoading: isChatsLoading } = useQuery(
-    trpcHttp.chats.getSidebar.queryOptions(),
-  )
+  const { data: assistants, isLoading } = useQuery({
+    queryKey: ['assistants'],
+    queryFn: async () => {
+      const response = await client.api.assistants.get()
+      if (response.error) throw new Error('Failed to fetch assistants')
+      return response.data
+    },
+  })
+  const { data: chats, isLoading: isChatsLoading } = useQuery({
+    queryKey: ['chats'],
+    queryFn: async () => {
+      const response = await client.api.chats.get()
+      if (response.error) throw new Error('Failed to fetch chats')
+      return response.data
+    },
+  })
 
   // Netko Store integration - because we're keeping track of the good stuff! 🎯
 

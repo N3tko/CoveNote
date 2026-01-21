@@ -34,11 +34,18 @@ export const useModelStore = create<ModelState>()(
 
         setModels: (models) =>
           set(
-            (state) => ({
-              models,
-              // If no current model, set the first one
-              currentModel: state.currentModel || models[0] || null,
-            }),
+            (state) => {
+              // Validate that the current model still exists in the available models
+              const isCurrentModelValid = state.currentModel
+                ? models.some((m) => m.id === state.currentModel?.id)
+                : false
+
+              return {
+                models,
+                // If current model is invalid or doesn't exist, set the first one
+                currentModel: isCurrentModelValid ? state.currentModel : models[0] || null,
+              }
+            },
             false,
             'setModels',
           ),

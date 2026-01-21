@@ -1,4 +1,3 @@
-import * as React from "react"
 import {
   ArrowDown,
   ArrowUp,
@@ -15,14 +14,10 @@ import {
   Star,
   Trash,
   Trash2,
-} from "lucide-react"
-
-import { Button } from "@netko/ui/components/shadcn/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@netko/ui/components/shadcn/popover"
+} from 'lucide-react'
+import * as React from 'react'
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Sidebar,
   SidebarContent,
@@ -31,66 +26,66 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@netko/ui/components/shadcn/sidebar"
+} from '@/components/ui/sidebar'
 
 const data = [
   [
     {
-      label: "Customize Page",
+      label: 'Customize Page',
       icon: Settings2,
     },
     {
-      label: "Turn into wiki",
+      label: 'Turn into wiki',
       icon: FileText,
     },
   ],
   [
     {
-      label: "Copy Link",
+      label: 'Copy Link',
       icon: Link,
     },
     {
-      label: "Duplicate",
+      label: 'Duplicate',
       icon: Copy,
     },
     {
-      label: "Move to",
+      label: 'Move to',
       icon: CornerUpRight,
     },
     {
-      label: "Move to Trash",
+      label: 'Move to Trash',
       icon: Trash2,
     },
   ],
   [
     {
-      label: "Undo",
+      label: 'Undo',
       icon: CornerUpLeft,
     },
     {
-      label: "View analytics",
+      label: 'View analytics',
       icon: LineChart,
     },
     {
-      label: "Version History",
+      label: 'Version History',
       icon: GalleryVerticalEnd,
     },
     {
-      label: "Show delete pages",
+      label: 'Show delete pages',
       icon: Trash,
     },
     {
-      label: "Notifications",
+      label: 'Notifications',
       icon: Bell,
     },
   ],
   [
     {
-      label: "Import",
+      label: 'Import',
       icon: ArrowUp,
     },
     {
-      label: "Export",
+      label: 'Export',
       icon: ArrowDown,
     },
   ],
@@ -105,26 +100,17 @@ export function NavActions() {
 
   return (
     <div className="flex items-center gap-2 text-sm">
-      <div className="text-muted-foreground hidden font-medium md:inline-block">
-        Edit Oct 08
-      </div>
+      <div className="text-muted-foreground hidden font-medium md:inline-block">Edit Oct 08</div>
       <Button variant="ghost" size="icon" className="h-7 w-7">
         <Star />
       </Button>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="data-[state=open]:bg-accent h-7 w-7"
-          >
+        <PopoverTrigger>
+          <Button variant="ghost" size="icon" className="data-[state=open]:bg-accent h-7 w-7">
             <MoreHorizontal />
           </Button>
         </PopoverTrigger>
-        <PopoverContent
-          className="w-56 overflow-hidden rounded-lg p-0"
-          align="end"
-        >
+        <PopoverContent className="w-56 overflow-hidden rounded-lg p-0" align="end">
           <Sidebar collapsible="none" className="bg-transparent">
             <SidebarContent>
               {data.map((group, index) => (

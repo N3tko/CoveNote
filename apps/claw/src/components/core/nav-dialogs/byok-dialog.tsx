@@ -1,5 +1,10 @@
 import type { LLMByok, LLMProvider } from '@netko/claw-domain'
-import { Button } from '@netko/ui/components/shadcn/button'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AnimatePresence, motion } from 'framer-motion'
+import { EyeIcon, EyeOffIcon, Loader2Icon, SaveIcon, TrashIcon } from 'lucide-react'
+import * as React from 'react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -7,14 +12,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@netko/ui/components/shadcn/dialog'
-import { Input } from '@netko/ui/components/shadcn/input'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { AnimatePresence, motion } from 'framer-motion'
-import { EyeIcon, EyeOffIcon, Loader2Icon, SaveIcon, TrashIcon } from 'lucide-react'
-import * as React from 'react'
-import { toast } from 'sonner'
-import { useTRPC } from '@/integrations/trpc/react'
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { client } from '@/integrations/eden'
 
 interface ByokDialogProps {
   open: boolean
@@ -32,8 +32,15 @@ const providerConfig: Record<LLMProvider, { name: string; icon: string }> = {
 }
 
 export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
-  const trpcHttp = useTRPC()
-  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.llmByok.getAll.queryOptions())
+  const queryClient = useQueryClient()
+  const { data: apiKeys = [], refetch } = useQuery({
+    queryKey: ['byok'],
+    queryFn: async () => {
+      const response = await client.api.byok.get()
+      if (response.error) throw new Error('Failed to fetch BYOK configurations')
+      return response.data
+    },
+  })
 
   const [keyValues, setKeyValues] = React.useState<Record<string, string>>({})
   const [showKeys, setShowKeys] = React.useState<Record<string, boolean>>({})
@@ -42,12 +49,12 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
 
   const apiKeysByProvider = React.useMemo(() => {
     const map: Partial<Record<LLMProvider, LLMByok>> = {}
-    apiKeys.forEach((key: LLMByok) => {
+    apiKeys.forEach((key) => {
       map[key.provider as LLMProvider] = {
         ...key,
         createdAt: new Date(key.createdAt),
         updatedAt: new Date(key.updatedAt),
-      }
+      } as LLMByok
     })
     return map
   }, [apiKeys])
@@ -64,9 +71,38 @@ export function ByokDialog({ open, onOpenChange }: ByokDialogProps) {
     }
   }, [apiKeysByProvider, open])
 
-  const createMutation = useMutation(trpcHttp.llmByok.create.mutationOptions())
-  const updateMutation = useMutation(trpcHttp.llmByok.update.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.llmByok.delete.mutationOptions())
+  const createMutation = useMutation({
+    mutationFn: async ({ provider, encryptedKey }: { provider: string; encryptedKey: string }) => {
+      const response = await client.api.byok.post({ provider, encryptedKey })
+      if (response.error) throw new Error('Failed to create BYOK')
+      return response.data
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['byok'] })
+    },
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, encryptedKey }: { id: string; encryptedKey: string }) => {
+      const response = await client.api.byok[id].patch({ encryptedKey })
+      if (response.error) throw new Error('Failed to update BYOK')
+      return response.data
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['byok'] })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async ({ id }: { id: string }) => {
+      const response = await client.api.byok[id].delete()
+      if (response.error) throw new Error('Failed to delete BYOK')
+      return response.data
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['byok'] })
+    },
+  })
 
   const handleMutation = async (provider: LLMProvider, action: 'save' | 'delete') => {
     setLoadingStates((prev) => ({ ...prev, [provider]: true }))

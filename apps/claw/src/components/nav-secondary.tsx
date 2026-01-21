@@ -1,6 +1,5 @@
-import React from "react"
-import { type LucideIcon } from "lucide-react"
-
+import type { LucideIcon } from 'lucide-react'
+import type React from 'react'
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -8,7 +7,7 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@netko/ui/components/shadcn/sidebar"
+} from '@/components/ui/sidebar'
 
 export function NavSecondary({
   items,
@@ -27,7 +26,7 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton>
                 <a href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

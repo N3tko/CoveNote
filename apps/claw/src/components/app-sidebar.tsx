@@ -1,12 +1,6 @@
 'use client'
 
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarRail,
-} from '@netko/ui/components/shadcn/sidebar'
-import {
   AudioWaveform,
   Blocks,
   Calendar,
@@ -25,6 +19,7 @@ import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
 import { NavWorkspaces } from '@/components/nav-workspaces'
 import { TeamSwitcher } from '@/components/team-switcher'
+import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from '@/components/ui/sidebar'
 
 // This is sample data.
 const data = {

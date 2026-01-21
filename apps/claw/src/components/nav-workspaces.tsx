@@ -1,10 +1,5 @@
-import { ChevronRight, MoreHorizontal, Plus } from "lucide-react"
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@netko/ui/components/shadcn/collapsible"
+import { ChevronRight, MoreHorizontal, Plus } from 'lucide-react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -16,7 +11,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@netko/ui/components/shadcn/sidebar"
+} from '@/components/ui/sidebar'
 
 export function NavWorkspaces({
   workspaces,
@@ -38,13 +33,13 @@ export function NavWorkspaces({
           {workspaces.map((workspace) => (
             <Collapsible key={workspace.name}>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton>
                   <a href="#">
                     <span>{workspace.emoji}</span>
                     <span>{workspace.name}</span>
                   </a>
                 </SidebarMenuButton>
-                <CollapsibleTrigger asChild>
+                <CollapsibleTrigger>
                   <SidebarMenuAction
                     className="bg-sidebar-accent text-sidebar-accent-foreground left-2 data-[state=open]:rotate-90"
                     showOnHover
@@ -59,7 +54,7 @@ export function NavWorkspaces({
                   <SidebarMenuSub>
                     {workspace.pages.map((page) => (
                       <SidebarMenuSubItem key={page.name}>
-                        <SidebarMenuSubButton asChild>
+                        <SidebarMenuSubButton>
                           <a href="#">
                             <span>{page.emoji}</span>
                             <span>{page.name}</span>

@@ -1,13 +1,12 @@
 import type { LLMModel, LLMProvider } from '@netko/claw-domain'
-import { Badge } from '@netko/ui/components/shadcn/badge'
-import { Button } from '@netko/ui/components/shadcn/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@netko/ui/components/shadcn/card'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Cpu, Loader2Icon, Pencil, Plus, SaveIcon, Trash2 } from 'lucide-react'
+import * as React from 'react'
+import { toast } from 'sonner'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -15,23 +14,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@netko/ui/components/shadcn/dialog'
-import { Input } from '@netko/ui/components/shadcn/input'
-import { Label } from '@netko/ui/components/shadcn/label'
-import { Switch } from '@netko/ui/components/shadcn/switch'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@netko/ui/components/shadcn/tooltip'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Cpu, Loader2Icon, Pencil, Plus, SaveIcon, Trash2 } from 'lucide-react'
-import * as React from 'react'
-import { toast } from 'sonner'
-import { useTRPC } from '@/integrations/trpc/react'
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { authClient } from '@/integrations/auth'
+import { client } from '@/integrations/eden'
 
 // LLM Provider enum values matching the database
 const LLM_PROVIDERS = ['openai', 'ollama', 'openrouter', 'custom'] as const
@@ -45,15 +34,66 @@ type ModelsFormProps = {
 }
 
 export function ModelsForm({ className }: ModelsFormProps) {
-  const trpcHttp = useTRPC()
+  const queryClient = useQueryClient()
   const { data } = authClient.useSession()
   const user = data?.user
-  const { data: models = [], refetch } = useQuery(trpcHttp.llmModels.getAvailable.queryOptions())
 
-  const createMutation = useMutation(trpcHttp.llmModels.create.mutationOptions())
+  const { data: models = [], refetch } = useQuery({
+    queryKey: ['models'],
+    queryFn: async () => {
+      const res = await client.api.models.get()
+      if (res.error) throw new Error('Failed to fetch models')
+      return res.data ?? []
+    },
+  })
 
-  const updateMutation = useMutation(trpcHttp.llmModels.update.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.llmModels.delete.mutationOptions())
+  const createMutation = useMutation({
+    mutationFn: async (data: {
+      slug: string
+      name: string
+      provider: LLMProvider
+      description: string | null
+      isActive: boolean
+    }) => {
+      const res = await client.api.models.post(data)
+      if (res.error) throw new Error('Failed to create model')
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['models'] })
+    },
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: {
+      id: string
+      slug?: string
+      name?: string
+      provider?: LLMProvider
+      description?: string | null
+      isActive?: boolean
+      isPublic?: boolean
+    }) => {
+      const { id, ...body } = data
+      const res = await client.api.models({ id }).patch(body)
+      if (res.error) throw new Error('Failed to update model')
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['models'] })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await client.api.models({ id }).delete()
+      if (res.error) throw new Error('Failed to delete model')
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['models'] })
+    },
+  })
 
   const [form, setForm] = React.useState({
     slug: '',
@@ -161,7 +201,7 @@ export function ModelsForm({ className }: ModelsFormProps) {
 
   const handleDelete = async (model: LLMModel) => {
     try {
-      await deleteMutation.mutateAsync({ id: model.id })
+      await deleteMutation.mutateAsync(model.id)
       await refetch()
     } catch (err) {
       toast.error(getFriendlyError(err))
@@ -271,7 +311,9 @@ export function ModelsForm({ className }: ModelsFormProps) {
               <select
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                 value={form.provider}
-                onChange={(e) => setForm((f) => ({ ...f, provider: e.target.value as LLMProvider }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, provider: e.target.value as LLMProvider }))
+                }
               >
                 {LLM_PROVIDERS.map((p) => (
                   <option key={p} value={p}>
@@ -359,7 +401,7 @@ export function ModelsForm({ className }: ModelsFormProps) {
                   <div className="flex items-center gap-2">
                     <TooltipProvider delayDuration={0}>
                       <Tooltip>
-                        <TooltipTrigger asChild>
+                        <TooltipTrigger>
                           <span>
                             <Button
                               size="icon"
@@ -379,7 +421,7 @@ export function ModelsForm({ className }: ModelsFormProps) {
                     </TooltipProvider>
                     <TooltipProvider delayDuration={0}>
                       <Tooltip>
-                        <TooltipTrigger asChild>
+                        <TooltipTrigger>
                           <span>
                             <Button
                               size="icon"

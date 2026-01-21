@@ -1,10 +1,5 @@
-import { type LucideIcon } from "lucide-react"
-
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@netko/ui/components/shadcn/sidebar"
+import type { LucideIcon } from 'lucide-react'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 
 export function NavMain({
   items,
@@ -20,7 +15,7 @@ export function NavMain({
     <SidebarMenu>
       {items.map((item) => (
         <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild isActive={item.isActive}>
+          <SidebarMenuButton isActive={item.isActive}>
             <a href={item.url}>
               <item.icon />
               <span>{item.title}</span>

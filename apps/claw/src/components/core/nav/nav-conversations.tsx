@@ -1,21 +1,6 @@
 'use client'
 
 import type { Chat } from '@netko/claw-domain'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@netko/ui/components/shadcn/dropdown-menu'
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@netko/ui/components/shadcn/sidebar'
 import { useRouter } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
 import {
@@ -29,6 +14,21 @@ import {
   Share,
   Trash2,
 } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from '@/components/ui/sidebar'
 
 export type ConversationGroup = {
   label: string
@@ -82,10 +82,7 @@ export function NavConversations({
                   {group.conversations.map((conversation, _index) => (
                     <motion.div key={conversation.id} variants={itemVariants}>
                       <SidebarMenuItem>
-                        <SidebarMenuButton
-                          asChild
-                          className="group relative h-auto overflow-hidden py-2 pr-1 transition-all duration-200 hover:bg-sidebar-accent/10"
-                        >
+                        <SidebarMenuButton className="group relative h-auto overflow-hidden py-2 pr-1 transition-all duration-200 hover:bg-sidebar-accent/10">
                           <a
                             href={`/chat/${conversation.id}`}
                             onClick={(e) => {
@@ -108,15 +105,14 @@ export function NavConversations({
                           </a>
                         </SidebarMenuButton>
                         <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <SidebarMenuAction
-                              showOnHover
-                              className="data-[state=open]:opacity-100 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                            >
-                              <EllipsisVertical className="size-4" />
-                              <span className="sr-only">More options for {conversation.title}</span>
-                            </SidebarMenuAction>
-                          </DropdownMenuTrigger>
+                          <SidebarMenuAction
+                            showOnHover
+                            className="data-[state=open]:opacity-100 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                            render={<DropdownMenuTrigger />}
+                          >
+                            <EllipsisVertical className="size-4" />
+                            <span className="sr-only">More options for {conversation.title}</span>
+                          </SidebarMenuAction>
                           <DropdownMenuContent
                             className="w-48"
                             side={isMobile ? 'bottom' : 'right'}

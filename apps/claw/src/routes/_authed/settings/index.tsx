@@ -1,18 +1,12 @@
 // Settings route
-import { Avatar, AvatarFallback, AvatarImage } from '@netko/ui/components/shadcn/avatar'
-import { Badge } from '@netko/ui/components/shadcn/badge'
-import { Button } from '@netko/ui/components/shadcn/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@netko/ui/components/shadcn/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { motion } from 'framer-motion'
-// import { Separator } from '@netko/ui/components/shadcn/separator'
+// import { Separator } from '@/components/ui/separator'
 import {
   BadgeCheck,
   BarChart3,

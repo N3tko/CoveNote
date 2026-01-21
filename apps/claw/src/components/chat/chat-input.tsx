@@ -1,18 +1,11 @@
 'use client'
 
+import { CheckIcon, ChevronDownIcon, GlobeIcon } from 'lucide-react'
+import { useRef } from 'react'
 import {
-  ModelSelector,
-  ModelSelectorContent,
-  ModelSelectorEmpty,
-  ModelSelectorGroup,
-  ModelSelectorInput,
-  ModelSelectorItem,
-  ModelSelectorList,
   ModelSelectorLogo,
   ModelSelectorLogoGroup,
-  ModelSelectorName,
-  ModelSelectorTrigger,
-} from '@netko/ui/components/ai-elements/model-selector'
+} from '@/components/ai-elements/model-selector'
 import {
   PromptInput,
   PromptInputActionAddAttachments,
@@ -25,12 +18,22 @@ import {
   PromptInputButton,
   PromptInputFooter,
   PromptInputHeader,
-  type PromptInputMessage,
+  PromptInputSpeechButton,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
-} from '@netko/ui/components/ai-elements/prompt-input'
-import { CheckIcon, GlobeIcon, MicIcon } from 'lucide-react'
+  type PromptInputMessage,
+} from '@/components/ai-elements/prompt-input'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ModelOption } from './definitions/message-types'
 
 interface ChatInputProps {
@@ -41,6 +44,8 @@ interface ChatInputProps {
   useMicrophone: boolean
   status: 'submitted' | 'streaming' | 'ready' | 'error'
   modelSelectorOpen: boolean
+  disabled?: boolean
+  placeholder?: string
   onModelChange: (modelId: string) => void
   onModelSelectorOpenChange: (open: boolean) => void
   onTextChange: (text: string) => void
@@ -48,6 +53,8 @@ interface ChatInputProps {
   onUseMicrophoneChange: (enabled: boolean) => void
   onSubmit: (message: PromptInputMessage) => void
 }
+
+export type { PromptInputMessage }
 
 export const ChatInput = ({
   model,
@@ -57,6 +64,8 @@ export const ChatInput = ({
   useMicrophone,
   status,
   modelSelectorOpen,
+  disabled = false,
+  placeholder = 'Type a message...',
   onModelChange,
   onModelSelectorOpenChange,
   onTextChange,
@@ -64,28 +73,51 @@ export const ChatInput = ({
   onUseMicrophoneChange,
   onSubmit,
 }: ChatInputProps) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const selectedModelData = models.find((m) => m.id === model)
+
+  // Group models by provider
+  const groupedModels = models.reduce(
+    (acc, m) => {
+      const provider = m.chefSlug || 'other'
+      if (!acc[provider]) {
+        acc[provider] = []
+      }
+      acc[provider].push(m)
+      return acc
+    },
+    {} as Record<string, ModelOption[]>,
+  )
+
+  const handleSubmit = (message: PromptInputMessage) => {
+    if (disabled || status === 'streaming') return
+    onSubmit(message)
+    onTextChange('')
+  }
 
   return (
     <div className="absolute bottom-0 left-0 right-0 z-10">
       <div className="mx-auto w-full max-w-3xl">
-        <div className="w-full px-4">
+        <div className="w-full px-4 pb-4">
           <PromptInput
-            className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-            globalDrop
+            onSubmit={handleSubmit}
+            accept="image/*"
             multiple
-            onSubmit={onSubmit}
+            className="rounded-2xl border border-border/50 bg-background/95 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-background/60"
           >
             <PromptInputHeader>
               <PromptInputAttachments>
-                {(attachment) => <PromptInputAttachment data={attachment} />}
+                {(file) => <PromptInputAttachment data={file} />}
               </PromptInputAttachments>
             </PromptInputHeader>
 
             <PromptInputBody>
               <PromptInputTextarea
-                onChange={(event) => onTextChange(event.target.value)}
+                ref={textareaRef}
                 value={text}
+                onChange={(e) => onTextChange(e.target.value)}
+                disabled={disabled}
+                placeholder={placeholder}
               />
             </PromptInputBody>
 
@@ -98,74 +130,67 @@ export const ChatInput = ({
                   </PromptInputActionMenuContent>
                 </PromptInputActionMenu>
 
-                <PromptInputButton
-                  onClick={() => onUseMicrophoneChange(!useMicrophone)}
-                  variant={useMicrophone ? 'default' : 'ghost'}
-                >
-                  <MicIcon size={16} />
-                  <span className="sr-only">Microphone</span>
-                </PromptInputButton>
+                <PromptInputSpeechButton
+                  textareaRef={textareaRef}
+                  onTranscriptionChange={onTextChange}
+                />
 
                 <PromptInputButton
-                  onClick={() => onUseWebSearchChange(!useWebSearch)}
                   variant={useWebSearch ? 'default' : 'ghost'}
+                  onClick={() => onUseWebSearchChange(!useWebSearch)}
                 >
-                  <GlobeIcon size={16} />
-                  <span>Search</span>
+                  <GlobeIcon className="mr-1 size-4" />
+                  <span className="text-xs">Search</span>
                 </PromptInputButton>
 
-                <ModelSelector onOpenChange={onModelSelectorOpenChange} open={modelSelectorOpen}>
-                  <ModelSelectorTrigger asChild>
-                    <PromptInputButton>
-                      {selectedModelData?.chefSlug ? (
-                        <ModelSelectorLogo provider={selectedModelData.chefSlug} />
-                      ) : null}
-                      {selectedModelData?.name ? (
-                        <ModelSelectorName>{selectedModelData.name}</ModelSelectorName>
-                      ) : null}
-                    </PromptInputButton>
-                  </ModelSelectorTrigger>
-
-                  <ModelSelectorContent>
-                    <ModelSelectorInput placeholder="Search models..." />
-                    <ModelSelectorList>
-                      <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-
-                      {['OpenAI', 'Anthropic', 'Google'].map((chef) => (
-                        <ModelSelectorGroup key={chef} heading={chef}>
-                          {models
-                            .filter((m) => m.chef === chef)
-                            .map((m) => (
-                              <ModelSelectorItem
-                                key={m.id}
-                                onSelect={() => {
-                                  onModelChange(m.id)
-                                  onModelSelectorOpenChange(false)
-                                }}
-                                value={m.id}
-                              >
+                <DropdownMenu open={modelSelectorOpen} onOpenChange={onModelSelectorOpenChange}>
+                  <DropdownMenuTrigger>
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2">
+                      {selectedModelData && (
+                        <ModelSelectorLogoGroup>
+                          <ModelSelectorLogo provider={selectedModelData.chefSlug} />
+                        </ModelSelectorLogoGroup>
+                      )}
+                      <span className="max-w-24 truncate text-xs">
+                        {selectedModelData?.name || 'Select Model'}
+                      </span>
+                      <ChevronDownIcon className="size-3 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-64">
+                    <ScrollArea className="max-h-72">
+                      {Object.entries(groupedModels).map(([provider, providerModels]) => (
+                        <DropdownMenuGroup key={provider}>
+                          <DropdownMenuLabel className="text-xs text-muted-foreground">
+                            {provider.charAt(0).toUpperCase() + provider.slice(1)}
+                          </DropdownMenuLabel>
+                          {providerModels.map((m) => (
+                            <DropdownMenuItem
+                              key={m.id}
+                              onClick={() => {
+                                onModelChange(m.id)
+                                onModelSelectorOpenChange(false)
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <ModelSelectorLogoGroup>
                                 <ModelSelectorLogo provider={m.chefSlug} />
-                                <ModelSelectorName>{m.name}</ModelSelectorName>
-                                <ModelSelectorLogoGroup>
-                                  {m.providers.map((provider) => (
-                                    <ModelSelectorLogo key={provider} provider={provider} />
-                                  ))}
-                                </ModelSelectorLogoGroup>
-                                {model === m.id ? (
-                                  <CheckIcon className="ml-auto size-4" />
-                                ) : (
-                                  <div className="ml-auto size-4" />
-                                )}
-                              </ModelSelectorItem>
-                            ))}
-                        </ModelSelectorGroup>
+                              </ModelSelectorLogoGroup>
+                              <span className="flex-1 truncate">{m.name}</span>
+                              {model === m.id && <CheckIcon className="size-4" />}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuGroup>
                       ))}
-                    </ModelSelectorList>
-                  </ModelSelectorContent>
-                </ModelSelector>
+                    </ScrollArea>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </PromptInputTools>
 
-              <PromptInputSubmit disabled={status === 'streaming'} status={status} />
+              <PromptInputSubmit
+                disabled={disabled || status === 'streaming' || !text.trim()}
+                status={status}
+              />
             </PromptInputFooter>
           </PromptInput>
         </div>

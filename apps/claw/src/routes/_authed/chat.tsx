@@ -1,4 +1,4 @@
-import { SidebarInset, SidebarProvider } from '@netko/ui/components/shadcn/sidebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { AppSidebar } from '@/components/core/nav/app-sidebar'
 

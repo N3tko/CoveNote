@@ -1,13 +1,10 @@
-import type { AppRouter } from '@netko/claw-trpc'
-import appCss from '@netko/ui/globals.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router'
-import type { TRPCOptionsProxy } from '@trpc/tanstack-react-query'
+import appCss from '@/styles.css?url'
 import * as TanstackQuery from '@/integrations/tanstack-query/root-provider'
 
 interface MyRouterContext {
   queryClient: QueryClient
-  trpc: TRPCOptionsProxy<AppRouter>
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({

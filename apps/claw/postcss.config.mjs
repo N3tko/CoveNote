@@ -1,1 +1,5 @@
-export { default } from '@netko/ui/postcss.config'
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}

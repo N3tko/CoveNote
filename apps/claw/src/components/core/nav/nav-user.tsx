@@ -1,6 +1,6 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@netko/ui/components/shadcn/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,13 +9,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@netko/ui/components/shadcn/dropdown-menu'
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@netko/ui/components/shadcn/sidebar'
+} from '@/components/ui/dropdown-menu'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import { useRouter } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronsUpDown, Database, HelpCircle, LogOut, Settings, Sparkles } from 'lucide-react'
@@ -59,13 +54,13 @@ export function NavUser({ user }: { user: AuthUser | null }) {
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
-                size="lg"
-                className="group relative overflow-hidden data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-              >
+            <SidebarMenuButton
+              size="lg"
+              className="group relative w-full overflow-hidden data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              render={<DropdownMenuTrigger />}
+            >
                 {(isHovered || isOpen) && (
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10"
@@ -118,33 +113,34 @@ export function NavUser({ user }: { user: AuthUser | null }) {
                     <ChevronsUpDown className="ml-auto size-4" />
                   </motion.div>
                 </motion.div>
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
+            </SidebarMenuButton>
             <DropdownMenuContent
               className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-border/50 bg-popover/95 p-2 backdrop-blur-sm"
               side={isMobile ? 'bottom' : 'right'}
               align="end"
               sideOffset={8}
             >
-              <DropdownMenuLabel className="p-0 font-normal">
-                <motion.div
-                  className="relative flex items-center gap-2 overflow-hidden rounded-md bg-primary/5 p-2 text-left text-sm"
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Avatar className="h-8 w-8 rounded-lg ring-2 ring-primary/20">
-                    <AvatarImage src={avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg bg-primary/10 font-medium">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground/70">{user.email}</span>
-                  </div>
-                </motion.div>
-              </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <motion.div
+                    className="relative flex items-center gap-2 overflow-hidden rounded-md bg-primary/5 p-2 text-left text-sm"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Avatar className="h-8 w-8 rounded-lg ring-2 ring-primary/20">
+                      <AvatarImage src={avatar} alt={user.name} />
+                      <AvatarFallback className="rounded-lg bg-primary/10 font-medium">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-medium">{user.name}</span>
+                      <span className="truncate text-xs text-muted-foreground/70">{user.email}</span>
+                    </div>
+                  </motion.div>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator className="my-2 opacity-50" />
               <DropdownMenuGroup>
                 {/* Account removed - now accessible via Settings page */}

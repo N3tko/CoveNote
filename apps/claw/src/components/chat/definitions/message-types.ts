@@ -1,13 +1,22 @@
-import type { ToolUIPart } from 'ai'
+import type { FileUIPart, ToolUIPart } from 'ai'
 
+/**
+ * Simple message type for chat display
+ */
 export type MessageType = {
   key: string
   from: 'user' | 'assistant'
+  content: string
+}
+
+/**
+ * Extended message type with additional features (for future use)
+ */
+export type ExtendedMessageType = {
+  key: string
+  from: 'user' | 'assistant'
+  content: string
   sources?: { href: string; title: string }[]
-  versions: {
-    id: string
-    content: string
-  }[]
   reasoning?: {
     content: string
     duration: number
@@ -28,5 +37,10 @@ export type ModelOption = {
   chef: string
   chefSlug: string
   providers: string[]
+}
+
+export type PromptInputMessage = {
+  text: string
+  files: FileUIPart[]
 }
 

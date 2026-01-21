@@ -1,25 +1,21 @@
-import { useAssistants } from '@/hooks/use-assistants'
 import type { LLMAssistant } from '@netko/claw-domain'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from '@netko/ui/components/shadcn/dropdown-menu'
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@netko/ui/components/shadcn/sidebar'
-import { cn } from '@netko/ui/lib/utils'
+} from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Bot, ChevronsUpDown, Loader2, Plus, Sparkles } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
+import { useAssistants } from '@/hooks/use-assistants'
 
 interface AssistantSwitcherProps {
   onAssistantChange?: (assistant: LLMAssistant) => void
@@ -81,15 +77,15 @@ export function AssistantSwitcher({ onAssistantChange }: AssistantSwitcherProps)
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className={cn(
-                'relative overflow-hidden transition-all duration-300 ease-in-out',
-                'data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground',
-                'hover:shadow-lg hover:scale-[1.02]',
-              )}
-            >
+          <SidebarMenuButton
+            size="lg"
+            className={cn(
+              'relative overflow-hidden transition-all duration-300 ease-in-out',
+              'data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground',
+              'hover:shadow-lg hover:scale-[1.02]',
+            )}
+            render={<DropdownMenuTrigger />}
+          >
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10"
                 animate={{
@@ -125,50 +121,51 @@ export function AssistantSwitcher({ onAssistantChange }: AssistantSwitcherProps)
               <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
                 <ChevronsUpDown className="ml-auto" />
               </motion.div>
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
+          </SidebarMenuButton>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg backdrop-blur-sm bg-opacity-95"
             align="start"
             side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-muted-foreground text-xs flex items-center gap-2">
-              <Sparkles className="size-3" /> Assistants
-            </DropdownMenuLabel>
-            <AnimatePresence>
-              {assistants.map((assistant, index) => (
-                <motion.div
-                  key={assistant.name}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.2, delay: index * 0.05 }}
-                >
-                  <DropdownMenuItem
-                    onClick={() => {
-                      handleAssistantSelect(assistant)
-                    }}
-                    className={cn(
-                      'gap-2 p-2 transition-all duration-200',
-                      'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-pink-500/10',
-                      activeAssistant.name === assistant.name &&
-                        'bg-gradient-to-r from-purple-500/20 to-pink-500/20',
-                    )}
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-muted-foreground text-xs flex items-center gap-2">
+                <Sparkles className="size-3" /> Assistants
+              </DropdownMenuLabel>
+              <AnimatePresence>
+                {assistants.map((assistant, index) => (
+                  <motion.div
+                    key={assistant.name}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.2, delay: index * 0.05 }}
                   >
-                    <motion.div
-                      className="flex size-6 items-center justify-center rounded-md border"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                    <DropdownMenuItem
+                      onClick={() => {
+                        handleAssistantSelect(assistant)
+                      }}
+                      className={cn(
+                        'gap-2 p-2 transition-all duration-200',
+                        'hover:bg-gradient-to-r hover:from-purple-500/10 hover:to-pink-500/10',
+                        activeAssistant.name === assistant.name &&
+                          'bg-gradient-to-r from-purple-500/20 to-pink-500/20',
+                      )}
                     >
-                      <Bot className="size-3.5 shrink-0" />
-                    </motion.div>
-                    {assistant.name}
-                    <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                      <motion.div
+                        className="flex size-6 items-center justify-center rounded-md border"
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                      >
+                        <Bot className="size-3.5 shrink-0" />
+                      </motion.div>
+                      {assistant.name}
+                      <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <motion.div
               whileHover={{ scale: 1.02 }}

@@ -34,11 +34,20 @@ export const useAssistantStore = create<AssistantState>()(
 
         setAssistants: (assistants) =>
           set(
-            (state) => ({
-              assistants,
-              // If no current assistant, set the first one
-              currentAssistant: state.currentAssistant || assistants[0] || null,
-            }),
+            (state) => {
+              // Validate that the current assistant still exists in the available assistants
+              const isCurrentAssistantValid = state.currentAssistant
+                ? assistants.some((a) => a.id === state.currentAssistant?.id)
+                : false
+
+              return {
+                assistants,
+                // If current assistant is invalid or doesn't exist, set the first one
+                currentAssistant: isCurrentAssistantValid
+                  ? state.currentAssistant
+                  : assistants[0] || null,
+              }
+            },
             false,
             'setAssistants',
           ),

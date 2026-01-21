@@ -1,4 +1,4 @@
-import { AnimatedBackground } from '@netko/ui/components/core/animated-background'
+import { AnimatedBackground } from '@/components/core/animated-background'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { LoginForm } from '@/components/auth/login-form'
 import { authClient } from '@/integrations/auth'

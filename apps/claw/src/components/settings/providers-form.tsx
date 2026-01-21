@@ -1,25 +1,34 @@
-import type { LLMByok, LLMProvider } from '@netko/claw-domain'
-import { Badge } from '@netko/ui/components/shadcn/badge'
-import { Button } from '@netko/ui/components/shadcn/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@netko/ui/components/shadcn/card'
-import { Input } from '@netko/ui/components/shadcn/input'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import type { LLMProvider } from '@netko/claw-domain'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { EyeIcon, EyeOffIcon, Key, Loader2Icon, SaveIcon, TrashIcon } from 'lucide-react'
 import * as React from 'react'
-import { useTRPC } from '@/integrations/trpc/react'
+import { client } from '@/integrations/eden'
 
 // LLM Provider enum values matching the database
 const LLM_PROVIDERS = ['openai', 'ollama', 'openrouter', 'custom'] as const
 
+type ByokResponse = {
+  id: string
+  provider: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 export function ProvidersForm() {
-  const trpcHttp = useTRPC()
-  const { data: apiKeys = [], refetch } = useQuery(trpcHttp.llmByok.getAll.queryOptions())
+  const queryClient = useQueryClient()
+  const { data: apiKeys = [], refetch } = useQuery({
+    queryKey: ['byok'],
+    queryFn: async () => {
+      const res = await client.api.byok.get()
+      if (res.error) throw new Error('Failed to fetch BYOK')
+      return (res.data ?? []) as ByokResponse[]
+    },
+  })
 
   const [keyValues, setKeyValues] = React.useState<Record<string, string>>({})
   const [showKeys, setShowKeys] = React.useState<Record<string, boolean>>({})
@@ -27,13 +36,9 @@ export function ProvidersForm() {
   const [loadingStates, setLoadingStates] = React.useState<Record<string, boolean>>({})
 
   const apiKeysByProvider = React.useMemo(() => {
-    const map: Partial<Record<LLMProvider, LLMByok>> = {}
-    apiKeys.forEach((key: LLMByok) => {
-      map[key.provider as LLMProvider] = {
-        ...key,
-        createdAt: new Date(key.createdAt),
-        updatedAt: new Date(key.updatedAt),
-      }
+    const map: Partial<Record<LLMProvider, ByokResponse>> = {}
+    apiKeys.forEach((key) => {
+      map[key.provider as LLMProvider] = key
     })
     return map
   }, [apiKeys])
@@ -42,23 +47,53 @@ export function ProvidersForm() {
     const initialValues: Record<string, string> = {}
     for (const provider of LLM_PROVIDERS) {
       const existingKey = apiKeysByProvider[provider]
-      initialValues[provider] = existingKey?.encryptedKey || ''
+      // If key exists, show placeholder to indicate it's saved
+      initialValues[provider] = existingKey ? '' : ''
     }
     setKeyValues(initialValues)
     setChangedKeys(new Set())
   }, [apiKeysByProvider])
 
-  const createMutation = useMutation(trpcHttp.llmByok.create.mutationOptions())
-  const updateMutation = useMutation(trpcHttp.llmByok.update.mutationOptions())
-  const deleteMutation = useMutation(trpcHttp.llmByok.delete.mutationOptions())
+  const createMutation = useMutation({
+    mutationFn: async (data: { provider: string; encryptedKey: string }) => {
+      const res = await client.api.byok.post(data)
+      if (res.error) throw new Error('Failed to create BYOK')
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['byok'] })
+    },
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: { id: string; encryptedKey?: string; isActive?: boolean }) => {
+      const { id, ...body } = data
+      const res = await client.api.byok({ id }).patch(body)
+      if (res.error) throw new Error('Failed to update BYOK')
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['byok'] })
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await client.api.byok({ id }).delete()
+      if (res.error) throw new Error('Failed to delete BYOK')
+      return res.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['byok'] })
+    },
+  })
 
   const handleKeyChange = (provider: LLMProvider, value: string) => {
     setKeyValues((prev) => ({ ...prev, [provider]: value }))
-    const existingKey = apiKeysByProvider[provider]
-    const hasChanged = value !== (existingKey?.encryptedKey || '')
+    // Mark as changed if there's a value entered
     setChangedKeys((prev) => {
       const next = new Set(prev)
-      if (hasChanged) next.add(provider)
+      if (value.trim()) next.add(provider)
       else next.delete(provider)
       return next
     })
@@ -70,7 +105,7 @@ export function ProvidersForm() {
       const existingKey = apiKeysByProvider[provider]
       if (action === 'delete') {
         if (existingKey) {
-          await deleteMutation.mutateAsync({ id: existingKey.id })
+          await deleteMutation.mutateAsync(existingKey.id)
         }
       } else {
         const key = keyValues[provider]
@@ -85,6 +120,7 @@ export function ProvidersForm() {
         next.delete(provider)
         return next
       })
+      setKeyValues((prev) => ({ ...prev, [provider]: '' }))
       await refetch()
     } finally {
       setLoadingStates((prev) => ({ ...prev, [provider]: false }))
@@ -132,7 +168,7 @@ export function ProvidersForm() {
                     type={showKeys[provider] ? 'text' : 'password'}
                     value={keyValues[provider] || ''}
                     onChange={(e) => handleKeyChange(provider as LLMProvider, e.target.value)}
-                    placeholder={`Enter your ${label} API key`}
+                    placeholder={existingKey ? 'Enter new key to update' : `Enter your ${label} API key`}
                     className="pr-10 h-11 text-base"
                   />
                   <Button

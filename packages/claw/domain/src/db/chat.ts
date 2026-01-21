@@ -48,6 +48,9 @@ export const chatMessageTable = pgTable('chat_message', {
   id: uuid('id')
     .primaryKey()
     .$defaultFn(() => Bun.randomUUIDv7().toString()),
+  eventId: uuid('event_id')
+    .notNull()
+    .$defaultFn(() => Bun.randomUUIDv7().toString()),
   chatId: uuid('chat_id').references(() => chatTable.id, { onDelete: 'cascade' }),
   assistantId: uuid('assistant_id').references(() => llmAssistantTable.id),
   modelId: uuid('model_id').references(() => llmModelTable.id),
