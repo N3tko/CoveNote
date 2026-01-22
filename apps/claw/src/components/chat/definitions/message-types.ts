@@ -1,26 +1,17 @@
 import type { FileUIPart, ToolUIPart } from 'ai'
 
 /**
- * Simple message type for chat display
+ * Message type for chat display with reasoning support
  */
 export type MessageType = {
   key: string
   from: 'user' | 'assistant'
   content: string
-}
-
-/**
- * Extended message type with additional features (for future use)
- */
-export type ExtendedMessageType = {
-  key: string
-  from: 'user' | 'assistant'
-  content: string
-  sources?: { href: string; title: string }[]
   reasoning?: {
     content: string
-    duration: number
+    collapsed?: boolean
   }
+  sources?: { href: string; title: string }[]
   tools?: {
     name: string
     description: string

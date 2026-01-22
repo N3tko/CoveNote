@@ -2,7 +2,6 @@
 
 import type { Chat, ChatMessage, LLMAssistant } from '@netko/claw-domain'
 import { useChat } from '@ai-sdk/react'
-import { TextStreamChatTransport } from 'ai'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import { AlertCircle, MessageSquarePlus, Sparkles } from 'lucide-react'
@@ -56,6 +55,7 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false)
   const [useWebSearch, setUseWebSearch] = useState(false)
   const [useMicrophone, setUseMicrophone] = useState(false)
+  const [input, setInput] = useState('')
 
   // Fetch existing messages for existing chats
   const { data: existingMessages } = useQuery({
@@ -69,36 +69,34 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
     enabled: !!chatId,
   })
 
-  // Create transport - body will be passed at request time via append() to avoid stale values
-  const chatTransport = useMemo(() => {
-    return new TextStreamChatTransport({
-      api: '/api/chat',
-    })
-  }, [])
-
-  // Use the AI SDK's useChat hook with text stream transport
+  // Use the AI SDK's useChat hook
   const {
     messages,
-    input,
-    setInput,
-    handleSubmit: handleChatSubmit,
-    isLoading,
     status,
     setMessages,
-    append,
+    sendMessage,
+    error,
   } = useChat({
-    transport: chatTransport,
+    api: '/api/chat',
     onError: (error) => {
+      console.error('[ChatView] useChat onError:', error)
       toast.error('Failed to send message', {
         description: error.message,
         position: 'top-right',
       })
     },
-    onFinish: () => {
+    onFinish: (message) => {
+      console.log('[ChatView] useChat onFinish:', message)
       // Invalidate chat list to update titles
       void queryClient.invalidateQueries({ queryKey: ['chats'] })
     },
   })
+
+  // Debug: Log messages and status changes
+  useEffect(() => {
+    console.log('[ChatView] Messages updated:', messages.length, messages)
+    console.log('[ChatView] Status:', status, 'error:', error)
+  }, [messages, status, error])
 
   // Sync existing messages to useChat state when loading an existing chat
   useEffect(() => {
@@ -137,12 +135,45 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
   })
 
   // Convert messages to the UI format
+  // New AI SDK v3 uses 'parts' array instead of 'content' string
   const uiMessages = useMemo((): MessageType[] => {
-    return messages.map((msg) => ({
-      key: msg.id,
-      from: msg.role === 'user' ? 'user' : 'assistant',
-      content: typeof msg.content === 'string' ? msg.content : '',
-    }))
+    console.log('[ChatView] Converting messages:', messages)
+    return messages.map((msg) => {
+      // Handle new format with parts array
+      let content = ''
+      let reasoning: { content: string } | undefined
+
+      if ('parts' in msg && Array.isArray(msg.parts)) {
+        // Extract text content
+        content = msg.parts
+          .filter((part): part is { type: 'text'; text: string } => part.type === 'text')
+          .map((part) => part.text)
+          .join('')
+
+        // Extract reasoning content
+        const reasoningParts = msg.parts.filter(
+          (part): part is { type: 'reasoning'; reasoning: string } => part.type === 'reasoning',
+        )
+        if (reasoningParts.length > 0) {
+          reasoning = {
+            content: reasoningParts.map((part) => part.reasoning).join('\n'),
+          }
+        }
+      } else if ('content' in msg && typeof msg.content === 'string') {
+        // Fallback to old format
+        content = msg.content
+      } else if ('text' in msg && typeof (msg as { text?: string }).text === 'string') {
+        // Handle text property
+        content = (msg as { text: string }).text
+      }
+
+      return {
+        key: msg.id,
+        from: msg.role === 'user' ? 'user' : 'assistant',
+        content,
+        reasoning,
+      }
+    })
   }, [messages])
 
   // Convert models to UI format
@@ -151,9 +182,9 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
   // Determine status for UI
   const uiStatus = useMemo((): 'submitted' | 'streaming' | 'ready' | 'error' => {
     if (status === 'streaming') return 'streaming'
-    if (status === 'submitted' || isLoading) return 'submitted'
+    if (status === 'submitted') return 'submitted'
     return 'ready'
-  }, [status, isLoading])
+  }, [status])
 
   const handleSubmit = useCallback(
     async (message: PromptInputMessage) => {
@@ -223,14 +254,11 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
                 params: { chatId: newChat.id },
               })
 
-              // Append message using useChat's append (will be sent after navigation)
+              // Send message using useChat's sendMessage (will be sent after navigation)
               // Pass body at request time to avoid stale values
               setTimeout(() => {
-                append(
-                  {
-                    role: 'user',
-                    content: message.text,
-                  },
+                sendMessage(
+                  { text: message.text },
                   {
                     body: {
                       chatId: newChat.id,
@@ -250,13 +278,10 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
             return
           }
         } else {
-          // Existing chat - use useChat's append
+          // Existing chat - use useChat's sendMessage
           // Pass body at request time to avoid stale values
-          append(
-            {
-              role: 'user',
-              content: message.text,
-            },
+          sendMessage(
+            { text: message.text },
             {
               body: {
                 chatId,
@@ -273,7 +298,7 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
     [
       isNewChat,
       chatId,
-      append,
+      sendMessage,
       setInput,
       currentAssistant,
       currentModel,
@@ -443,7 +468,7 @@ export const ChatView = ({ chatId }: ChatViewProps) => {
         models={modelOptions}
         modelSelectorOpen={modelSelectorOpen}
         status={uiStatus}
-        text={input}
+        text={input ?? ''}
         useMicrophone={useMicrophone}
         useWebSearch={useWebSearch}
         disabled={!byokValidation.isValid}

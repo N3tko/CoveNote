@@ -59,7 +59,7 @@ export type { PromptInputMessage }
 export const ChatInput = ({
   model,
   models,
-  text,
+  text = '',
   useWebSearch,
   useMicrophone,
   status,
@@ -188,7 +188,7 @@ export const ChatInput = ({
               </PromptInputTools>
 
               <PromptInputSubmit
-                disabled={disabled || status === 'streaming' || !text.trim()}
+                disabled={disabled || status === 'streaming' || !text?.trim()}
                 status={status}
               />
             </PromptInputFooter>
