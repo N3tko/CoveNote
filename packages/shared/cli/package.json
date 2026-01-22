@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "netko": "./src/index.ts"
+    "repo": "./src/index.ts"
   },
   "exports": {
     ".": "./src/index.ts"

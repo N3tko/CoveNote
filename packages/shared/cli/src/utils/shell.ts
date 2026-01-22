@@ -167,39 +167,3 @@ export async function waitForDatabase(
   console.log('\n❌ Database failed to become ready')
   return false
 }
-
-/**
- * Wait for Redis to be ready
- */
-export async function waitForRedis(
-  redisUrl: string,
-  maxAttempts = 30,
-  delayMs = 1000,
-): Promise<boolean> {
-  console.log('⏳ Waiting for Redis to be ready...')
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const url = new URL(redisUrl)
-      const host = url.hostname
-      const port = url.port || '6379'
-
-      const result = await $`nc -z ${host} ${port}`.quiet()
-      if (result.exitCode === 0) {
-        await Bun.sleep(1000)
-        console.log('✅ Redis is ready!')
-        return true
-      }
-    } catch {
-      // Connection failed, retry
-    }
-
-    if (attempt < maxAttempts) {
-      process.stdout.write(`\r⏳ Waiting for Redis... (attempt ${attempt}/${maxAttempts})`)
-      await Bun.sleep(delayMs)
-    }
-  }
-
-  console.log('\n❌ Redis failed to become ready')
-  return false
-}

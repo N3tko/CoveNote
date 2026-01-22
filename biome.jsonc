@@ -34,33 +34,21 @@
                   "kind": "objectLiteralProperty",
                   "scope": "any"
                 },
-                "formats": [
-                  "camelCase",
-                  "CONSTANT_CASE",
-                  "PascalCase",
-                  "snake_case"
-                ]
+                "formats": ["camelCase", "CONSTANT_CASE", "PascalCase", "snake_case"]
               },
               {
                 "selector": {
                   "kind": "typeProperty",
                   "scope": "any"
                 },
-                "formats": [
-                  "camelCase",
-                  "PascalCase",
-                  "CONSTANT_CASE"
-                ]
+                "formats": ["camelCase", "PascalCase", "CONSTANT_CASE"]
               },
               {
                 "selector": {
                   "kind": "function",
                   "scope": "any"
                 },
-                "formats": [
-                  "camelCase",
-                  "PascalCase"
-                ]
+                "formats": ["camelCase", "PascalCase"]
               }
             ]
           }

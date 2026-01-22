@@ -1,0 +1,10 @@
+import type { Message, MessageInsert } from '@netko/{{ name }}-domain'
+import { messageTable } from '@netko/{{ name }}-domain/db'
+import { db } from '@netko/{{ name }}-repository'
+
+export const saveMessage = async (
+  input: Pick<MessageInsert, 'username' | 'message'>
+): Promise<Message> => {
+  const [message] = await db.insert(messageTable).values(input).returning()
+  return message
+}

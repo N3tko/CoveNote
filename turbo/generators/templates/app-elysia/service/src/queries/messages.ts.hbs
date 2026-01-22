@@ -1,0 +1,12 @@
+import { desc } from 'drizzle-orm'
+import type { Message } from '@netko/{{ name }}-domain'
+import { messageTable } from '@netko/{{ name }}-domain/db'
+import { db } from '@netko/{{ name }}-repository'
+
+export const getMessages = async (limit = 50): Promise<Message[]> => {
+  return await db
+    .select()
+    .from(messageTable)
+    .orderBy(desc(messageTable.createdAt))
+    .limit(limit)
+}

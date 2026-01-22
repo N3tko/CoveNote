@@ -1,6 +1,0 @@
-export { assistantRoutes } from './assistants'
-export { byokRoutes } from './byok'
-export { chatRoutes } from './chats'
-export { chatStreamRoutes } from './chat-stream'
-export { messageRoutes } from './messages'
-export { modelRoutes } from './models'

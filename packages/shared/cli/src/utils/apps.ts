@@ -52,22 +52,15 @@ export function getAppDir(appName: string): string {
 }
 
 /**
- * Get app package directory path (packages/<appName>/)
+ * Get app package directory path
  */
 export function getAppPackageDir(appName: string): string {
   return path.join(getRootDir(), 'packages', appName)
 }
 
 /**
- * Get repository package directory path (packages/<appName>/repository)
+ * Get repository package directory path
  */
 export function getRepositoryDir(appName: string): string {
   return path.join(getAppPackageDir(appName), 'repository')
-}
-
-/**
- * Get service package directory path (packages/<appName>/service)
- */
-export function getServiceDir(appName: string): string {
-  return path.join(getAppPackageDir(appName), 'service')
 }

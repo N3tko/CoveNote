@@ -1,0 +1,20 @@
+import { z } from 'zod'
+import { MessageSchema, MessageInsertSchema } from '../entities'
+
+// WS /chat/ws - WebSocket chat
+export const chatWsBodySchema = MessageInsertSchema.pick({ username: true, message: true })
+export type ChatWsBody = z.infer<typeof chatWsBodySchema>
+
+export const chatWsResponseSchema = MessageSchema.extend({
+  timestamp: z.number(),
+})
+export type ChatWsResponse = z.infer<typeof chatWsResponseSchema>
+
+// GET /chat/history - Get chat history
+export const chatHistoryQuerySchema = z.object({
+  limit: z.coerce.number().min(1).max(100).default(50),
+})
+export type ChatHistoryQuery = z.infer<typeof chatHistoryQuerySchema>
+
+export const chatHistoryResponseSchema = z.array(MessageSchema)
+export type ChatHistoryResponse = z.infer<typeof chatHistoryResponseSchema>

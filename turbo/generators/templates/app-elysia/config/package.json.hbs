@@ -1,0 +1,17 @@
+{
+  "name": "@netko/{{ name }}-config",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@netko/{{ name }}-domain": "workspace:*",
+    "@netko/typescript-config": "workspace:*",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.4"
+  }
+}

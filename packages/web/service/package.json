@@ -1,0 +1,22 @@
+{
+  "name": "@netko/web-service",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@better-auth/passkey": "^1.4.5",
+    "@netko/web-config": "workspace:*",
+    "@netko/web-domain": "workspace:*",
+    "@netko/web-repository": "workspace:*",
+    "@netko/logger": "workspace:*",
+    "@netko/typescript-config": "workspace:*",
+    "@openrouter/ai-sdk-provider": "^1.4.1",
+    "ai": "^5.0.0-canary.14",
+    "better-auth": "^1.4.5",
+    "drizzle-orm": "^0.44.6",
+    "jose": "^6.0.11"
+  }
+}

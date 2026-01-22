@@ -6,9 +6,9 @@
 
 export function printHelp() {
   console.log(`
-✧･ﾟ: *✧･ﾟ:* NETKO CLI *:･ﾟ✧*:･ﾟ✧
+✧･ﾟ: *✧･ﾟ:* REPO CLI *:･ﾟ✧*:･ﾟ✧
 
-Usage: bun netko <command> [options]
+Usage: bun repo <command> [options]
 
 Docker Commands:
   docker:up --app <name>     Start Docker containers for an app (with profile)
@@ -21,18 +21,26 @@ Database Commands:
   db:push --app <name>       Push schema changes directly (no migration)
 
 Development Commands:
-  dev --app <name>           Full development setup (docker + db + seed + server)
-  serve --app <name>         Run development server only
+  dev --app <name>           Run development server for an app
   build --app <name>         Build an app for production
+
+Generator Commands:
+  generate:app               Create a new app (TanStack or Hono)
+  generate:lib               Create a new shared library
+
+Project Commands:
+  rename <new-scope>         Rename project scope (e.g., @netko → @my-company)
+  rename:preview <scope>     Preview files that would be changed by rename
 
 Other:
   help, --help, -h           Show this help message
 
 Examples:
-  bun netko docker:up --app claw
-  bun netko db:migrate --app claw
-  bun netko dev --app claw
-  bun netko serve --app claw
-  bun netko build --app claw
+  bun repo docker:up --app game
+  bun repo db:migrate --app game
+  bun repo dev --app game
+  bun repo generate:app
+  bun repo rename:preview @my-company
+  bun repo rename @my-company
 `)
 }

@@ -9,7 +9,7 @@ import { getRootDir, loadEnvFile, run } from '../utils/shell'
  */
 
 /**
- * Build an app for production
+ * Build an app for production using turbo
  */
 export async function build(args: string[]) {
   const appName = parseAppArg(args)
@@ -32,9 +32,9 @@ export async function build(args: string[]) {
 
   console.log(`📦 Building ${appName} for production...`)
 
-  await run(['bun', 'run', 'build'], {
-    cwd: appDir,
-    env: { ...appEnv, NODE_ENV: 'production' },
+  await run(['turbo', 'run', 'build', '--filter', `${appName}-app`], {
+    cwd: getRootDir(),
+    env: appEnv,
   })
 
   console.log(`✅ Build for ${appName} completed!`)

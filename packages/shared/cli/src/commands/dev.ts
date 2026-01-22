@@ -1,7 +1,7 @@
 import * as path from 'node:path'
 import { getAppDir, getAvailableApps, parseAppArg, validateApp } from '../utils/apps'
-import { killProcessOnPort, loadEnvFile, run, waitForDatabase, waitForRedis } from '../utils/shell'
-import { dbGenerate, dbMigrate, dbSeed } from './db'
+import { killProcessOnPort, loadEnvFile, run, waitForDatabase } from '../utils/shell'
+import { dbGenerate, dbMigrate } from './db'
 import { dockerUp } from './docker'
 
 /**
@@ -13,11 +13,9 @@ import { dockerUp } from './docker'
 /**
  * Run full development setup for an app:
  * 1. Start Docker containers
- * 2. Wait for database & Redis
- * 3. Generate DB schema
- * 4. Run migrations
- * 5. Seed database
- * 6. Start dev server
+ * 2. Generate DB schema
+ * 3. Run migrations
+ * 4. Start dev server
  */
 export async function dev(args: string[]) {
   const appName = parseAppArg(args)
@@ -39,25 +37,16 @@ export async function dev(args: string[]) {
   // Step 1: Start Docker containers
   await dockerUp(args)
 
-  // Step 2: Wait for database and Redis to be ready
+  // Step 2: Wait for database to be ready
   const appDir = getAppDir(appName)
   const envFile = path.join(appDir, '.env')
   const appEnv = loadEnvFile(envFile)
   const databaseUrl = appEnv.DATABASE_URL
-  const cacheUrl = appEnv.CACHE_URL
 
   if (databaseUrl) {
     const isReady = await waitForDatabase(databaseUrl)
     if (!isReady) {
       console.error('❌ Database failed to start. Please check Docker logs.')
-      process.exit(1)
-    }
-  }
-
-  if (cacheUrl) {
-    const isReady = await waitForRedis(cacheUrl)
-    if (!isReady) {
-      console.error('❌ Redis failed to start. Please check Docker logs.')
       process.exit(1)
     }
   }
@@ -68,10 +57,7 @@ export async function dev(args: string[]) {
   // Step 4: Run migrations
   await dbMigrate(args)
 
-  // Step 5: Seed the database
-  await dbSeed(args)
-
-  // Step 6: Start dev server
+  // Step 5: Start dev server
   await serve(args)
 }
 

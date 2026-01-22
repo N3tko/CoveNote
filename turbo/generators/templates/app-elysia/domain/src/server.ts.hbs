@@ -1,0 +1,17 @@
+import { z } from 'zod'
+
+export const {{ pascalCase name }}ConfigSchema = z.object({
+  app: z.object({
+    dev: z.boolean(),
+    port: z.number(),
+    cors: z.array(z.string()),
+  }),
+  db: z.object({
+    url: z.string(),
+  }),
+  cache: z.object({
+    url: z.string(),
+  }),
+})
+
+export type {{ pascalCase name }}Config = z.infer<typeof {{ pascalCase name }}ConfigSchema>

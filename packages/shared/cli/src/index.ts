@@ -1,17 +1,19 @@
 #!/usr/bin/env bun
 
 /**
- * ✧･ﾟ: *✧･ﾟ:* NETKO CLI *:･ﾟ✧*:･ﾟ✧
+ * ✧･ﾟ: *✧･ﾟ:* REPO CLI *:･ﾟ✧*:･ﾟ✧
  *
- * A Bun-powered CLI for managing the Netko monorepo! (◕‿◕✿)
+ * A Bun-powered CLI for managing the monorepo! (◕‿◕✿)
  *
- * Usage: bun netko <command> [options]
+ * Usage: bun repo <command> [options]
  */
 
 import { build } from './commands/build'
 import { dbGenerate, dbMigrate, dbPush, dbSeed } from './commands/db'
 import { dev, serve } from './commands/dev'
 import { dockerDown, dockerUp } from './commands/docker'
+import { generateApp, generateLib } from './commands/generate'
+import { previewRename, renameProject } from './commands/rename'
 import { printHelp } from './utils/help'
 
 const args = process.argv.slice(2)
@@ -50,6 +52,22 @@ async function main() {
       break
     case 'build':
       await build(args.slice(1))
+      break
+
+    // Generator commands
+    case 'generate:app':
+      await generateApp()
+      break
+    case 'generate:lib':
+      await generateLib()
+      break
+
+    // Rename commands
+    case 'rename':
+      await renameProject(args.slice(1))
+      break
+    case 'rename:preview':
+      await previewRename(args.slice(1))
       break
 
     // Help

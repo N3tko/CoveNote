@@ -1,0 +1,8 @@
+import { treaty } from '@elysiajs/eden'
+import type { Api } from './index'
+
+export function createTreatyClient(baseUrl = '') {
+  return treaty<Api>(baseUrl)
+}
+
+export type TreatyClient = ReturnType<typeof createTreatyClient>

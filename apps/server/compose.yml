@@ -1,0 +1,25 @@
+services:
+  # Server App Services
+  db-server:
+    image: postgres:17
+    profiles: [server]
+    ports:
+      - "${SERVER_DB_PORT:-5433}:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: server
+    volumes:
+      - server_postgres_data:/var/lib/postgresql/data
+
+  redis-server:
+    image: redis:latest
+    profiles: [server]
+    ports:
+      - "${SERVER_REDIS_PORT:-6380}:6379"
+    volumes:
+      - server_redis_data:/data
+
+volumes:
+  server_postgres_data:
+  server_redis_data:

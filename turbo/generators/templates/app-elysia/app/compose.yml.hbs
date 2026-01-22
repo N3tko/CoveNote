@@ -1,0 +1,25 @@
+services:
+  # {{ titleCase name }} App Services
+  db-{{ name }}:
+    image: postgres:17
+    profiles: [{{ name }}]
+    ports:
+      - "${{{ constantCase name }}_DB_PORT:-5433}:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: {{ name }}
+    volumes:
+      - {{ name }}_postgres_data:/var/lib/postgresql/data
+
+  redis-{{ name }}:
+    image: redis:latest
+    profiles: [{{ name }}]
+    ports:
+      - "${{{ constantCase name }}_REDIS_PORT:-6380}:6379"
+    volumes:
+      - {{ name }}_redis_data:/data
+
+volumes:
+  {{ name }}_postgres_data:
+  {{ name }}_redis_data:

@@ -1,0 +1,27 @@
+{
+  "name": "@netko/server-repository",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "db:generate": "bunx --bun drizzle-kit generate",
+    "db:migrate": "bunx --bun drizzle-kit migrate",
+    "db:seed": "bun run ./src/db/seed.ts"
+  },
+  "dependencies": {
+    "@netko/server-config": "workspace:*",
+    "@netko/server-domain": "workspace:*",
+    "@netko/typescript-config": "workspace:*",
+    "drizzle-orm": "^0.44.6",
+    "ioredis": "^5.8.0",
+    "postgres": "^3.4.7",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.4",
+    "drizzle-kit": "^0.31.5"
+  }
+}
