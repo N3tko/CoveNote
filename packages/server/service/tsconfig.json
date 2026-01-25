@@ -1,4 +1,0 @@
-{
-  "extends": "@netko/typescript-config/bun.json",
-  "include": ["src"]
-}

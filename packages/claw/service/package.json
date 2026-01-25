@@ -1,0 +1,22 @@
+{
+  "name": "@netko/claw-service",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@better-auth/passkey": "^1.4.5",
+    "@netko/claw-config": "workspace:*",
+    "@netko/claw-domain": "workspace:*",
+    "@netko/claw-repository": "workspace:*",
+    "@netko/logger": "workspace:*",
+    "@netko/typescript-config": "workspace:*",
+    "@openrouter/ai-sdk-provider": "^2.0.0",
+    "ai": "^6.0.45",
+    "better-auth": "^1.4.5",
+    "drizzle-orm": "^0.45.1",
+    "jose": "^6.0.11"
+  }
+}

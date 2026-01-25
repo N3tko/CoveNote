@@ -28,7 +28,6 @@
     "packages/shared/*",
     "packages/clients/*",
     "packages/configs/*",
-    "packages/web/*",
-    "packages/server/*"
+    "packages/claw/*"
   ]
 }
