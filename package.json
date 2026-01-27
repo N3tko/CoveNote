@@ -1,18 +1,23 @@
 {
-  "name": "@netko",
+  "name": "@covenote",
   "private": true,
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
     "fmt-lint": "biome check .",
     "fmt-lint:fix": "biome check . --write",
-    "check-types": "turbo run check-types"
+    "check-types": "turbo run check-types",
+    "rename": "bun run packages/shared/cli/src/index.ts rename",
+    "rename:preview": "bun run packages/shared/cli/src/index.ts rename:preview",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
+    "@turbo/gen": "^2.7.5",
+    "@types/bun": "^1.3.4",
+    "husky": "^9.1.7",
     "turbo": "^2.5.8",
-    "typescript": "5.9.2",
-    "@types/bun": "latest"
+    "typescript": "5.9.2"
   },
   "engines": {
     "node": ">=18"
@@ -22,7 +27,7 @@
     "apps/*",
     "packages/shared/*",
     "packages/clients/*",
-    "packages/claw/*",
-    "packages/configs/*"
+    "packages/configs/*",
+    "packages/claw/*"
   ]
 }

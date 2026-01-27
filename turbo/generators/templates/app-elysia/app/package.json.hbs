@@ -1,0 +1,33 @@
+{
+  "name": "{{ name }}",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "repo dev --app {{ name }}",
+    "serve": "NODE_ENV=development bun run --hot src/index.ts",
+    "start": "NODE_ENV=production bun run src/index.ts",
+    "build": "NODE_ENV=production bun build src/index.ts --outdir dist --target bun",
+    "docker:up": "repo docker:up --app {{ name }}",
+    "docker:down": "repo docker:down --app {{ name }}",
+    "db:migrate": "repo db:migrate --app {{ name }}",
+    "db:generate": "repo db:generate --app {{ name }}",
+    "db:push": "repo db:push --app {{ name }}",
+    "db:seed": "repo db:seed --app {{ name }}"
+  },
+  "dependencies": {
+    "@covenote/{{ name }}-config": "workspace:*",
+    "@covenote/{{ name }}-domain": "workspace:*",
+    "@covenote/{{ name }}-repository": "workspace:*",
+    "@covenote/{{ name }}-service": "workspace:*",
+    "@covenote/logger": "workspace:*",
+    "@covenote/elysia-logger": "workspace:*",
+    "@covenote/cli": "workspace:*",
+    "elysia": "^1.2.25",
+    "@elysiajs/cors": "^1.2.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.4",
+    "typescript": "^5.7.0"
+  }
+}

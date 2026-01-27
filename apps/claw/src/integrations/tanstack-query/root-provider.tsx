@@ -1,48 +1,38 @@
-import { QueryClient } from '@tanstack/react-query'
-import {
-  createTRPCClient,
-  httpBatchLink,
-  httpSubscriptionLink,
-  loggerLink,
-  splitLink,
-} from '@trpc/client'
-import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
-import superjson from 'superjson'
-import { TRPCProvider } from '@/integrations/trpc/react'
-import type { AppRouter } from '@/trpc'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import type * as React from 'react'
 
-export const trpcClient = createTRPCClient<AppRouter>({
-  links: [
-    loggerLink(),
-    splitLink({
-      condition: (op) => op.type === 'subscription',
-      true: httpSubscriptionLink({
-        transformer: superjson,
-        url: '/api/trpc',
-      }),
-      false: httpBatchLink({
-        transformer: superjson,
-        url: '/api/trpc',
-      }),
-    }),
-  ],
-})
+// Singleton QueryClient for SSR
+let clientQueryClient: QueryClient | undefined
+
+function getQueryClient() {
+  if (typeof window === 'undefined') {
+    // Server: always create a new QueryClient
+    return new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: 60 * 1000, // 1 minute
+        },
+      },
+    })
+  }
+
+  // Browser: use singleton pattern to avoid re-creating between renders
+  if (!clientQueryClient) {
+    clientQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: 60 * 1000,
+        },
+      },
+    })
+  }
+  return clientQueryClient
+}
 
 export function getContext() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      dehydrate: { serializeData: superjson.serialize },
-      hydrate: { deserializeData: superjson.deserialize },
-    },
-  })
-
-  const serverHelpers = createTRPCOptionsProxy({
-    client: trpcClient,
-    queryClient: queryClient,
-  })
+  const queryClient = getQueryClient()
   return {
     queryClient,
-    trpc: serverHelpers,
   }
 }
 
@@ -53,9 +43,5 @@ export function Provider({
   children: React.ReactNode
   queryClient: QueryClient
 }) {
-  return (
-    <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-      {children}
-    </TRPCProvider>
-  )
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 }

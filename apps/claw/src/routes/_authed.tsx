@@ -1,6 +1,8 @@
 import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router'
+import { AppSidebar } from '@/components/app-sidebar'
 import { BarsSpinner } from '@/components/core/spinner/bars-spinner'
-import { authClient } from '@/lib/auth'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { authClient } from '@/integrations/auth'
 
 export const Route = createFileRoute('/_authed')({
   component: ProtectedRouteLayout,
@@ -21,5 +23,12 @@ function ProtectedRouteLayout() {
     return <Navigate to="/auth" />
   }
 
-  return <Outlet />
+  return (
+    <SidebarProvider className="h-screen overflow-hidden">
+      <AppSidebar user={data.user} />
+      <SidebarInset className="overflow-hidden">
+        <Outlet />
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }

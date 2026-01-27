@@ -1,6 +1,12 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -17,6 +23,7 @@
         "useValidAnchor": "off"
       },
       "style": {
+        "noNonNullAssertion": "off",
         "useNamingConvention": {
           "level": "error",
           "options": {
@@ -98,10 +105,12 @@
       "!**/public",
       "!**/generated",
       "!**/dist",
-      "!**/packages/shared/ui",
       "!**/.tanstack",
       "!**/.nitro",
-      "!**/.output"
+      "!**/.output",
+      "!**/src/styles.css",
+      "!**/src/components/ui",
+      "!**/src/components/ai-elements"
     ]
   }
 }

@@ -1,0 +1,4 @@
+{
+  "extends": "@covenote/typescript-config/bun.json",
+  "include": ["src"]
+}

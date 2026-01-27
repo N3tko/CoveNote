@@ -12,13 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
-import { Route as AuthedChatRouteImport } from './routes/_authed/chat'
-import { Route as AuthedSettingsIndexRouteImport } from './routes/_authed/settings/index'
-import { Route as AuthedProfileIndexRouteImport } from './routes/_authed/profile/index'
+import { Route as ApiSplatRouteImport } from './routes/api.$'
 import { Route as AuthedChatIndexRouteImport } from './routes/_authed/chat/index'
-import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc/$'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as AuthedChatThreadIdRouteImport } from './routes/_authed/chat/$threadId'
+import { Route as AuthedChatChatIdRouteImport } from './routes/_authed/chat/$chatId'
 
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
@@ -34,118 +30,65 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedChatRoute = AuthedChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedSettingsIndexRoute = AuthedSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => AuthedRoute,
-} as any)
-const AuthedProfileIndexRoute = AuthedProfileIndexRouteImport.update({
-  id: '/profile/',
-  path: '/profile/',
-  getParentRoute: () => AuthedRoute,
+const ApiSplatRoute = ApiSplatRouteImport.update({
+  id: '/api/$',
+  path: '/api/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedChatIndexRoute = AuthedChatIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthedChatRoute,
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => AuthedRoute,
 } as any)
-const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
-  id: '/api/trpc/$',
-  path: '/api/trpc/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthedChatThreadIdRoute = AuthedChatThreadIdRouteImport.update({
-  id: '/$threadId',
-  path: '/$threadId',
-  getParentRoute: () => AuthedChatRoute,
+const AuthedChatChatIdRoute = AuthedChatChatIdRouteImport.update({
+  id: '/chat/$chatId',
+  path: '/chat/$chatId',
+  getParentRoute: () => AuthedRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/chat': typeof AuthedChatRouteWithChildren
-  '/auth': typeof AuthIndexRoute
-  '/chat/$threadId': typeof AuthedChatThreadIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/api/$': typeof ApiSplatRoute
+  '/auth/': typeof AuthIndexRoute
+  '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/chat/': typeof AuthedChatIndexRoute
-  '/profile': typeof AuthedProfileIndexRoute
-  '/settings': typeof AuthedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/$': typeof ApiSplatRoute
   '/auth': typeof AuthIndexRoute
-  '/chat/$threadId': typeof AuthedChatThreadIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/chat': typeof AuthedChatIndexRoute
-  '/profile': typeof AuthedProfileIndexRoute
-  '/settings': typeof AuthedSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authed': typeof AuthedRouteWithChildren
-  '/_authed/chat': typeof AuthedChatRouteWithChildren
+  '/api/$': typeof ApiSplatRoute
   '/auth/': typeof AuthIndexRoute
-  '/_authed/chat/$threadId': typeof AuthedChatThreadIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/_authed/chat/$chatId': typeof AuthedChatChatIdRoute
   '/_authed/chat/': typeof AuthedChatIndexRoute
-  '/_authed/profile/': typeof AuthedProfileIndexRoute
-  '/_authed/settings/': typeof AuthedSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/chat'
-    | '/auth'
-    | '/chat/$threadId'
-    | '/api/auth/$'
-    | '/api/trpc/$'
-    | '/chat/'
-    | '/profile'
-    | '/settings'
+  fullPaths: '/' | '/api/$' | '/auth/' | '/chat/$chatId' | '/chat/'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/auth'
-    | '/chat/$threadId'
-    | '/api/auth/$'
-    | '/api/trpc/$'
-    | '/chat'
-    | '/profile'
-    | '/settings'
+  to: '/' | '/api/$' | '/auth' | '/chat/$chatId' | '/chat'
   id:
     | '__root__'
     | '/'
     | '/_authed'
-    | '/_authed/chat'
+    | '/api/$'
     | '/auth/'
-    | '/_authed/chat/$threadId'
-    | '/api/auth/$'
-    | '/api/trpc/$'
+    | '/_authed/chat/$chatId'
     | '/_authed/chat/'
-    | '/_authed/profile/'
-    | '/_authed/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthedRoute: typeof AuthedRouteWithChildren
+  ApiSplatRoute: typeof ApiSplatRoute
   AuthIndexRoute: typeof AuthIndexRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -153,7 +96,7 @@ declare module '@tanstack/react-router' {
     '/_authed': {
       id: '/_authed'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -167,86 +110,42 @@ declare module '@tanstack/react-router' {
     '/auth/': {
       id: '/auth/'
       path: '/auth'
-      fullPath: '/auth'
+      fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/chat': {
-      id: '/_authed/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof AuthedChatRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/settings/': {
-      id: '/_authed/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthedSettingsIndexRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/profile/': {
-      id: '/_authed/profile/'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthedProfileIndexRouteImport
-      parentRoute: typeof AuthedRoute
+    '/api/$': {
+      id: '/api/$'
+      path: '/api/$'
+      fullPath: '/api/$'
+      preLoaderRoute: typeof ApiSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authed/chat/': {
       id: '/_authed/chat/'
-      path: '/'
+      path: '/chat'
       fullPath: '/chat/'
       preLoaderRoute: typeof AuthedChatIndexRouteImport
-      parentRoute: typeof AuthedChatRoute
+      parentRoute: typeof AuthedRoute
     }
-    '/api/trpc/$': {
-      id: '/api/trpc/$'
-      path: '/api/trpc/$'
-      fullPath: '/api/trpc/$'
-      preLoaderRoute: typeof ApiTrpcSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authed/chat/$threadId': {
-      id: '/_authed/chat/$threadId'
-      path: '/$threadId'
-      fullPath: '/chat/$threadId'
-      preLoaderRoute: typeof AuthedChatThreadIdRouteImport
-      parentRoute: typeof AuthedChatRoute
+    '/_authed/chat/$chatId': {
+      id: '/_authed/chat/$chatId'
+      path: '/chat/$chatId'
+      fullPath: '/chat/$chatId'
+      preLoaderRoute: typeof AuthedChatChatIdRouteImport
+      parentRoute: typeof AuthedRoute
     }
   }
 }
 
-interface AuthedChatRouteChildren {
-  AuthedChatThreadIdRoute: typeof AuthedChatThreadIdRoute
+interface AuthedRouteChildren {
+  AuthedChatChatIdRoute: typeof AuthedChatChatIdRoute
   AuthedChatIndexRoute: typeof AuthedChatIndexRoute
 }
 
-const AuthedChatRouteChildren: AuthedChatRouteChildren = {
-  AuthedChatThreadIdRoute: AuthedChatThreadIdRoute,
-  AuthedChatIndexRoute: AuthedChatIndexRoute,
-}
-
-const AuthedChatRouteWithChildren = AuthedChatRoute._addFileChildren(
-  AuthedChatRouteChildren,
-)
-
-interface AuthedRouteChildren {
-  AuthedChatRoute: typeof AuthedChatRouteWithChildren
-  AuthedProfileIndexRoute: typeof AuthedProfileIndexRoute
-  AuthedSettingsIndexRoute: typeof AuthedSettingsIndexRoute
-}
-
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedChatRoute: AuthedChatRouteWithChildren,
-  AuthedProfileIndexRoute: AuthedProfileIndexRoute,
-  AuthedSettingsIndexRoute: AuthedSettingsIndexRoute,
+  AuthedChatChatIdRoute: AuthedChatChatIdRoute,
+  AuthedChatIndexRoute: AuthedChatIndexRoute,
 }
 
 const AuthedRouteWithChildren =
@@ -255,19 +154,19 @@ const AuthedRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRoute: AuthedRouteWithChildren,
+  ApiSplatRoute: ApiSplatRoute,
   AuthIndexRoute: AuthIndexRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

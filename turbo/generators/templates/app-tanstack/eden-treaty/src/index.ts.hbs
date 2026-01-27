@@ -1,0 +1,7 @@
+import { Elysia } from 'elysia'
+import { healthRoutes } from './routes/health'
+
+export const api = new Elysia({ prefix: '/api' })
+  .use(healthRoutes)
+
+export type Api = typeof api

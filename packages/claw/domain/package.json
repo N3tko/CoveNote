@@ -1,16 +1,18 @@
 {
-  "name": "@netko/claw-domain",
+  "name": "@covenote/claw-domain",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
   "exports": {
     ".": "./src/index.ts"
   },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^5"
-  },
   "dependencies": {
-    "zod": "^3.25.58"
+    "@covenote/typescript-config": "workspace:*",
+    "drizzle-orm": "^0.45.1",
+    "drizzle-zod": "^0.8.3",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.4"
   }
 }

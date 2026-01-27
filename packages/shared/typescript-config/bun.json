@@ -9,7 +9,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "allowJs": true,
-    "lib": ["ESNext"],
-    "target": "ESNext"
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "types": ["bun"]
   }
 }

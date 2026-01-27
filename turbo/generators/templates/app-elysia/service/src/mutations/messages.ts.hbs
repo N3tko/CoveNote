@@ -1,0 +1,10 @@
+import type { Message, MessageInsert } from '@covenote/{{ name }}-domain'
+import { messageTable } from '@covenote/{{ name }}-domain/db'
+import { db } from '@covenote/{{ name }}-repository'
+
+export const saveMessage = async (
+  input: Pick<MessageInsert, 'username' | 'message'>
+): Promise<Message> => {
+  const [message] = await db.insert(messageTable).values(input).returning()
+  return message
+}

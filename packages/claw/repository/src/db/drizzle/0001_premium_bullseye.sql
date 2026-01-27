@@ -1,0 +1,1 @@
+ALTER TABLE "chat_message" ADD COLUMN "event_id" uuid NOT NULL;

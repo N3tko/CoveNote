@@ -1,151 +1,200 @@
-# Netko
+# ☕ TanStack + Elysia Monorepo Template
 
-Welcome to **Netko** — your digital laboratory for AI banter and multi-LLM mischief! 🧪💬
 
-Ever wanted to wrangle a squad of language models, sync your wildest conversations, and experiment with the bleeding edge of AI—all in one stylish playground? You're in the right timeline. Built for the T3 Chat Cloneathon, Netko is where ideas spark, personalities (AI and human) collide, and inspiration is just one message away.
+A monorepo template for building full-stack TypeScript applications. No `any` types were harmed in the making of this template.
 
-> ⚡️ Side effects may include spontaneous brainstorming, worldline shifts, and the urge to build something cool.
+## 🐱 Tech Stack
 
----
+| Layer | Tech | Notes |
+|-------|------|-------|
+| **Runtime** | [Bun](https://bun.sh/) | 69% quicker than Node. Nice. |
+| **Monorepo** | [Turborepo](https://turbo.build/) | Caches builds like I cache coffee cups on my desk |
+| **Frontend** | [TanStack Start](https://tanstack.com/start) | SSR framework. Tuturu~ |
+| **Backend** | [Elysia](https://elysiajs.com/) | Express but speedy. Like, really speedy |
+| **API Client** | [Eden Treaty](https://elysiajs.com/eden/treaty) | End-to-end types. The choice of Steins;Gate |
+| **Database** | [Drizzle ORM](https://orm.drizzle.team/) | SQL that actually sparks joy |
+| **UI** | [shadcn/ui](https://ui.shadcn.com/) | Beautiful components. Copy-paste no jutsu |
+| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | 69 utility classes and counting |
+| **Auth** | [Better Auth](https://www.better-auth.com/) | Authentication that just works |
+| **Validation** | [Zod](https://zod.dev/) | Runtime checks. Trust no one, not even your inputs |
+| **Linting** | [Biome](https://biomejs.dev/) | Quicker than ESLint. Quicker than Prettier. Why not both? |
 
-## 🚀 Features
-
-- **Multi-LLM Playground:**  
-  Chat with a whole crew of language models (LLMs) — swap between them like you're flipping channels in the multiverse! 🌌
-- **Conversation Sync:**  
-  Your chat history and threads are always saved — never lose a vital message, even if you accidentally diverge from the main worldline. 🕰️💾
-- **Modern UI:**  
-  Modular, reusable, and as smooth as a well-oiled gadget. Powered by shadcn/ui. 🎛️✨
-- **Experimentation Hub:**  
-  Try out new models, prompts, and features in a safe, sandboxed environment. Go wild — we won't judge. 🧑‍🔬🧪
-
----
-
-## 🧪 Tech Stack
-
-- **Frontend & App Runtime:**  
-  - [React](https://react.dev/) with [@tanstack/react-router](https://tanstack.com/router/latest) and React Start ⚛️
-  - [tRPC](https://trpc.io/) endpoints mounted via router server handlers
-  - Vite ⚡️
-  - shadcn/ui design system 🧩
-  - TypeScript 🦕
-
-- **Data & Auth:**  
-  - Node.js (Bun for package management) 🍞
-  - [Prisma ORM](https://www.prisma.io/) with **PostgreSQL** 🐘
-  - Auth via [better-auth](https://github.com/your-org/better-auth) + Prisma adapter 🔐
-  - Optional Redis for caching 🧰
-
-- **Monorepo Tooling:**  
-  - [Turborepo](https://turbo.build/) for monorepo management 🏎️
-  - Biome for formatting and linting 🌳
-
----
-
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
-Netko/
-  apps/
-    claw/                 # Web app (React + TanStack Router + React Start + tRPC)
-                           # Exposes server handlers for /api/trpc and /api/auth
-  packages/
-    claw/
-      domain/             # Domain-driven design: entities, factories, values
-      repository/         # Prisma schema, migrations, DB access, caching
-      service/            # Business logic, auth config, utilities
-    shared/
-      ui/                 # Reusable UI components (chat UIs, shadcn/ui wrappers)
-      logger/             # Shared logger package
-      typescript-config/  # TS config presets
-    configs/
-      claw-config/        # Runtime env config loader and types
-  turbo/                  # Turborepo generators and templates
+.
+├── apps/
+│   ├── web/                    # Frontend (where 🐱 live)
+│   └── server/                 # Backend (where 🐱 sleep)
+├── packages/
+│   ├── configs/                # Env configs (the secret lab)
+│   ├── shared/                 # Shared stuff
+│   │   ├── cli/                # CLI tool (like a microwave, but for code)
+│   │   ├── logger/             # console.log's final form
+│   │   ├── elysia-logger/      # HTTP logging middleware
+│   │   └── typescript-config/  # tsconfig presets
+│   ├── web/                    # Web packages
+│   │   ├── domain/             # DB schema + entities
+│   │   ├── repository/         # Database layer
+│   │   ├── service/            # Business logic
+│   │   └── eden-treaty/        # API routes + client
+│   └── server/                 # Server packages
+├── turbo/
+│   └── generators/             # Scaffolding templates
+└── compose.yml                 # Docker config
 ```
 
-- **apps/claw:**  
-  The main web app with SSR and API routes. Hosts tRPC at `/api/trpc` and Better Auth at `/api/auth` via TanStack Router server handlers. 🖥️🚪
-- **packages/claw/domain:**  
-  Domain logic: entities, value objects, and factories. The DNA of your chat world. 🧬
-- **packages/claw/repository:**  
-  Prisma schema, migrations, and database adapters (PostgreSQL), plus optional Redis caching. Where your data finds a home. 🏡
-- **packages/claw/service:**  
-  Business logic, authentication config (`auth`), and supporting utilities. The secret sauce. 🥫
-- **packages/shared/ui:**  
-  Design system and chat UI components (shadcn/ui, chat, markdown, audio, etc). The wardrobe and props for your chat stage. 🎭
-- **packages/shared/logger:**  
-  Shared logger utilities and adapters.
-- **packages/configs/claw-config:**  
-  Environment configuration loader and types used across packages.
+## 🚀 Quick Start
 
----
+### Prerequisites
 
-## 🕹️ Getting Started
+- [Bun](https://bun.sh/) >= 1.0
+- [Docker](https://www.docker.com/)
+- ☕ Coffee
 
-Ready to fire up your own lab? 🧑‍🔬
+### Setup (Time: 6 + 9 minutes)
 
-1. **Install dependencies:**  
-   ```sh
-   bun install
-   ```
+```bash
+# Clone
+git clone <repo-url> my-project && cd my-project
 
-2. **Configure environment:**  
-   - Copy `apps/claw/sample.env` to `apps/claw/.env` and fill in values. 📝
-   - Required (typical local): `BASE_URL`, `DATABASE_URL`, `AUTH_SECRET`, `ENCRYPTION_KEY`
-   - Optional: `DEV_MODE`, `CACHE_URL` (Redis), `SENTRY_DSN`, OAuth client IDs/secrets
+# Install (good time to grab another ☕)
+bun install
 
-3. **Start databases (optional via Docker):**  
-   ```sh
-   docker compose up -d
-   ```
-   This brings up PostgreSQL (5432) and Redis (6379) using `compose.yml`.
+# Rename project (optional)
+bun run rename my-cool-project
 
-4. **Start the dev environment:**  
-   ```sh
-   turbo run dev
-   ```
-   The app will generate Prisma client, run migrations, and seed dev data automatically.
+# Setup env
+cp apps/web/sample.env apps/web/.env
+cp apps/server/sample.env apps/server/.env
 
-5. **Open [http://localhost:3000](http://localhost:3000) and start chatting!** 🎉
+# Summon the databases
+cd apps/web && bun run docker:up
+cd apps/server && bun run docker:up
 
-Advanced (manual DB ops):
-```sh
-# From repo root
-bun run --cwd packages/claw/repository db:generate
-bun run --env-file=./apps/claw/.env --cwd packages/claw/repository db:migrate   # dev
-bun run --env-file=./apps/claw/.env --cwd packages/claw/repository db:deploy    # deploy
-bun run --env-file=./apps/claw/.env --cwd packages/claw/repository db:seed
+# Push schemas
+bun run db:push
+
+# Launch
+bun run dev
 ```
 
----
+Web: `http://localhost:3000` | Backend: `http://localhost:3001`
 
-## 🏡 Self-Hosting (WIP)
+## 📜 Scripts
 
-Dreaming of running Netko from your own secret lab? 🏰
+### Root
 
-Self-hosting support is coming soon! 🛠️  
-Stay tuned for updates on how to deploy Netko on your own infrastructure. (No microwave time machine required — just a bit of patience as we stabilize the worldline.)
+| Script | What |
+|--------|------|
+| `bun run dev` | Start all apps |
+| `bun run build` | Build everything |
+| `bun run fmt-lint` | Check code style |
+| `bun run fmt-lint:fix` | Fix code style |
+| `bun run check-types` | TypeScript check |
+| `bun run rename <name>` | Rename project |
 
----
+### Per App
 
-## 🧑‍🔬 Contributing
+| Script | What |
+|--------|------|
+| `bun run dev` | Docker + migrations + dev server |
+| `bun run serve` | Dev server only |
+| `bun run build` | Production build |
+| `bun run docker:up` | Start containers |
+| `bun run docker:down` | Stop containers |
+| `bun run db:migrate` | Run migrations |
+| `bun run db:generate` | Generate migrations |
+| `bun run db:push` | Push schema to DB |
+| `bun run db:seed` | Seed database |
 
-Pull requests and lab memos welcome! 📝
-Help us build the ultimate chat playground — your contributions may just shift the worldline. ✨
+## 🏗️ Generators
 
-Whether you're a code sorcerer, a documentation wizard, or just have a wild idea, hop in! The more, the merrier. 🧙‍♂️🤝
+### New App
 
----
+```bash
+bunx turbo gen app
+```
 
-## ⚠️ Disclaimer
+Options:
+- **TanStack Start** — Full-stack with Eden Treaty
+- **Elysia Server** — Standalone API server
 
-This project is for experimentation and fun.  
-May cause time paradoxes, spontaneous inspiration, or the urge to shout mysterious phrases at your computer. 🌀
+Creates:
+```
+apps/{name}/
+packages/{name}/domain/
+packages/{name}/repository/
+packages/{name}/service/
+packages/{name}/eden-treaty/  # TanStack only
+packages/configs/{name}-config/
+```
 
-Proceed at your own risk — and remember, the only constant is change (and maybe a little chaos). Divergence is expected. 🦋
+### New Library
 
----
+```bash
+bunx turbo gen lib
+```
 
-## 🧭 License
+## 🏛️ Architecture
 
-MIT — because the best worldlines are open source. 📜
+```
+┌─────────────────────────────────┐
+│              App                │  ← 🐱 live here
+├─────────────────────────────────┤
+│          Eden Treaty            │  ← Type-safe API
+├─────────────────────────────────┤
+│            Service              │  ← Business logic
+├─────────────────────────────────┤
+│          Repository             │  ← DB queries
+├─────────────────────────────────┤
+│            Domain               │  ← Schemas
+├─────────────────────────────────┤
+│            Config               │  ← Env vars
+└─────────────────────────────────┘
+```
+
+## 🔌 Eden Treaty
+
+```typescript
+import { client } from '@/integrations/eden'
+
+// Fully typed. The Organization cannot intercept these types.
+const { data, error } = await client.api.todos.get()
+//     ^? Todo[]
+
+import { backend } from '@/integrations/backend'
+
+const { data } = await backend.health.get()
+//     ^? { status: 'ok' | 'error', timestamp: number, uptime: number }
+```
+
+Change the API → TypeScript errors everywhere. As intended.
+
+## 🔐 Environment Variables
+
+### Web (`apps/web/.env`)
+
+| Variable | Description |
+|----------|-------------|
+| `BASE_URL` | App URL |
+| `VITE_API_URL` | Same-origin API |
+| `VITE_BACKEND_URL` | Backend server URL |
+| `DATABASE_URL` | PostgreSQL |
+| `CACHE_URL` | Redis |
+| `AUTH_SECRET` | Auth secret |
+| `ENCRYPTION_KEY` | Encryption key |
+
+### Server (`apps/server/.env`)
+
+| Variable | Description |
+|----------|-------------|
+| `PORT` | Server port |
+| `CORS` | Allowed origins |
+| `DATABASE_URL` | PostgreSQL |
+| `CACHE_URL` | Redis |
+
+## 🪝 Git Hooks
+
+Pre-commit runs `bun run fmt-lint`. No ugly code allowed.
+

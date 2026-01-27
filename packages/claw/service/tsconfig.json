@@ -1,8 +1,10 @@
 {
-  "extends": "@netko/typescript-config/bun.json",
+  "extends": "@covenote/typescript-config/bun.json",
   "compilerOptions": {
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "declaration": false,
+    "declarationMap": false
   }
 }

@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ChatView } from '@/components/chat/chat-view'
+import { ChatEmptyState } from '@/components/chat/chat-empty-state'
 
 export const Route = createFileRoute('/_authed/chat/')({
-  component: Index,
+  component: ChatIndexPage,
 })
 
-function Index() {
-  return <ChatView />
+function ChatIndexPage() {
+  return <ChatEmptyState />
 }

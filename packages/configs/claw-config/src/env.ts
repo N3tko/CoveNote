@@ -1,4 +1,4 @@
-import { type ClawConfig, ClawConfigSchema } from '@netko/claw-domain'
+import { type ClawConfig, ClawConfigSchema } from '@covenote/claw-domain'
 
 const isEnabled = (args: (string | undefined)[]): boolean => {
   return args.every((arg) => arg !== undefined && arg !== '')
@@ -6,17 +6,21 @@ const isEnabled = (args: (string | undefined)[]): boolean => {
 
 const clawConfig: ClawConfig = {
   app: {
-    dev: process.env.DEV_MODE === 'true',
-    baseUrl: process.env.BASE_URL,
-    port: Number(process.env.PORT),
-    cors: process.env.CORS?.split(',') ?? undefined,
-    encryptionKey: process.env.ENCRYPTION_KEY,
+    dev: process.env.NODE_ENV !== 'production',
+    baseUrl: process.env.BASE_URL ?? 'http://localhost:3000',
+    port: Number(process.env.PORT ?? 3000),
+    cors: process.env.CORS?.split(',') ?? [],
+    encryptionKey: process.env.ENCRYPTION_KEY ?? '',
   },
   cache: {
-    url: process.env.CACHE_URL,
+    url: process.env.CACHE_URL ?? '',
   },
   db: {
-    url: process.env.DATABASE_URL,
+    url: process.env.DATABASE_URL ?? '',
+  },
+  ai: {
+    gatewayApiKey: process.env.AI_GATEWAY_API_KEY,
+    exaApiKey: process.env.EXA_API_KEY,
   },
   auth: {
     secret: process.env.AUTH_SECRET,
