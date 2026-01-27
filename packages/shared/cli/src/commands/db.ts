@@ -65,7 +65,7 @@ export async function dbGenerate(args: string[]) {
 
   console.log(`🗃️  Generating schema for ${appName}...`)
 
-  await run(['bun', 'run', '--filter', `@netko/${appName}-repository`, 'db:generate'], {
+  await run(['bun', 'run', '--filter', `@covenote/${appName}-repository`, 'db:generate'], {
     cwd: getRootDir(),
   })
 

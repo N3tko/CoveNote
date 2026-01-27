@@ -29,7 +29,7 @@ Generator Commands:
   generate:lib               Create a new shared library
 
 Project Commands:
-  rename <new-scope>         Rename project scope (e.g., @netko → @my-company)
+  rename <new-scope>         Rename project scope (e.g., @covenote → @my-company)
   rename:preview <scope>     Preview files that would be changed by rename
 
 Other:

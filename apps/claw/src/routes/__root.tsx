@@ -22,7 +22,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: "Netko – The AI Side-kick That Won't Stop Talking",
+        title: "CoveNote – The AI Side-kick That Won't Stop Talking",
       },
     ],
     links: [

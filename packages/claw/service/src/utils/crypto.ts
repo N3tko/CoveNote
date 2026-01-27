@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
-import { clawEnvConfig } from '@netko/claw-config'
+import { clawEnvConfig } from '@covenote/claw-config'
 
 const MASTER_KEY = clawEnvConfig.app.encryptionKey
 const ALGORITHM = 'aes-256-gcm'

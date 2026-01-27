@@ -1,6 +1,6 @@
 import { createInsertSchema, createSelectSchema, createUpdateSchema } from 'drizzle-zod'
-import { z } from 'zod'
-import { llmAssistantTable, llmByokTable, llmModelTable, llmProviderEnum } from '../db'
+import type { z } from 'zod'
+import { llmAssistantTable, llmModelTable, llmProviderEnum } from '../db'
 
 /**
  * +---------------------+
@@ -43,21 +43,3 @@ export type LLMAssistantUpdate = z.infer<typeof LLMAssistantUpdateSchema>
 
 export const LLMAssistantSchema = createSelectSchema(llmAssistantTable)
 export type LLMAssistant = z.infer<typeof LLMAssistantSchema>
-
-/**
- * +---------------------+
- * | LLM BYOK Schemas    |
- * +---------------------+
- *        /\_/\
- *       ( o.o )
- */
-export const LLMByokInsertSchema = createInsertSchema(llmByokTable)
-export type LLMByokInsert = z.infer<typeof LLMByokInsertSchema>
-
-export const LLMByokUpdateSchema = createUpdateSchema(llmByokTable).required({ id: true })
-export type LLMByokUpdate = z.infer<typeof LLMByokUpdateSchema>
-
-export const LLMByokSchema = createSelectSchema(llmByokTable).extend({
-  decryptedKey: z.string().optional(),
-})
-export type LLMByok = z.infer<typeof LLMByokSchema>

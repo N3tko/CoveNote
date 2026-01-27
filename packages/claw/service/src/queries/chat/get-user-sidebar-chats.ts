@@ -1,5 +1,5 @@
-import { type Chat, chatTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import { type Chat, chatTable } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { desc, eq } from 'drizzle-orm'
 
 export const getUserSidebarChats = async (userId: string): Promise<Chat[]> => {

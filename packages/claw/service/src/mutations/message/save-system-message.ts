@@ -1,6 +1,6 @@
-import type { ChatMessage, ChatMessageInsert } from '@netko/claw-domain'
-import { chatMessageTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import type { ChatMessage, ChatMessageInsert } from '@covenote/claw-domain'
+import { chatMessageTable } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 
 /**
  * Save a system message (e.g., summaries) to the database

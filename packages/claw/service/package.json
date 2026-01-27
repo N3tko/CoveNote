@@ -1,5 +1,5 @@
 {
-  "name": "@netko/claw-service",
+  "name": "@covenote/claw-service",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
@@ -8,15 +8,15 @@
   },
   "dependencies": {
     "@better-auth/passkey": "^1.4.5",
-    "@netko/claw-config": "workspace:*",
-    "@netko/claw-domain": "workspace:*",
-    "@netko/claw-repository": "workspace:*",
-    "@netko/logger": "workspace:*",
-    "@netko/typescript-config": "workspace:*",
-    "@openrouter/ai-sdk-provider": "^2.0.0",
+    "@covenote/claw-config": "workspace:*",
+    "@covenote/claw-domain": "workspace:*",
+    "@covenote/claw-repository": "workspace:*",
+    "@covenote/logger": "workspace:*",
+    "@covenote/typescript-config": "workspace:*",
     "ai": "^6.0.45",
     "better-auth": "^1.4.5",
     "drizzle-orm": "^0.45.1",
+    "exa-js": "^1.5.12",
     "jose": "^6.0.11"
   }
 }

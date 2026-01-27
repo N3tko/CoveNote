@@ -1,5 +1,5 @@
 {
-  "name": "@netko",
+  "name": "@covenote",
   "private": true,
   "scripts": {
     "build": "turbo run build",

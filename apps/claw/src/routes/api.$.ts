@@ -1,4 +1,4 @@
-import { api } from '@netko/eden-treaty'
+import { api } from '@covenote/eden-treaty'
 import { createFileRoute } from '@tanstack/react-router'
 
 const handle = ({ request }: { request: Request }) => api.fetch(request)

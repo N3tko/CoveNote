@@ -1,7 +1,7 @@
-import type { AuthenticatedContext, ChatMessage, ChatMessageInsert } from '@netko/claw-domain'
-import { chatMessageTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
-import { createLogger } from '@netko/logger'
+import type { AuthenticatedContext, ChatMessage, ChatMessageInsert } from '@covenote/claw-domain'
+import { chatMessageTable } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
+import { createLogger } from '@covenote/logger'
 import { RedisClient } from 'bun'
 
 const logger = createLogger('send-message')

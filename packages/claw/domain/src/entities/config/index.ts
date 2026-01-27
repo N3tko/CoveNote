@@ -28,6 +28,10 @@ const _protoClawConfigSchema = z.object({
   db: z.object({
     url: z.string(),
   }),
+  ai: z.object({
+    gatewayApiKey: z.string().optional(),
+    exaApiKey: z.string().optional(),
+  }),
   auth: z.object({
     secret: z.string().optional(),
     emailAndPassword: z.object({

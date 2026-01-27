@@ -3,8 +3,8 @@ import {
   type LLMModel,
   type LLMModelUpdate,
   llmModelTable,
-} from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+} from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { and, eq } from 'drizzle-orm'
 
 export const updateLLMModel = async (

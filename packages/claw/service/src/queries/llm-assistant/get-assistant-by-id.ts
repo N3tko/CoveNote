@@ -1,5 +1,5 @@
-import { type LLMAssistant, llmAssistantTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import { type LLMAssistant, llmAssistantTable } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { eq } from 'drizzle-orm'
 
 export const getAssistantById = async (id: string): Promise<LLMAssistant | undefined> => {

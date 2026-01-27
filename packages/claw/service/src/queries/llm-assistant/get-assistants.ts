@@ -1,5 +1,9 @@
-import { type AuthenticatedContext, type LLMAssistant, llmAssistantTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import {
+  type AuthenticatedContext,
+  type LLMAssistant,
+  llmAssistantTable,
+} from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { eq, or } from 'drizzle-orm'
 
 export const getAssistants = async (ctx?: AuthenticatedContext): Promise<LLMAssistant[]> => {

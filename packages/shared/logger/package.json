@@ -1,5 +1,5 @@
 {
-  "name": "@netko/logger",
+  "name": "@covenote/logger",
   "version": "0.1.0",
   "type": "module",
   "main": "src/index.ts",
@@ -12,7 +12,7 @@
     "pino-pretty": "^13.0.0"
   },
   "devDependencies": {
-    "@netko/typescript-config": "workspace:*",
+    "@covenote/typescript-config": "workspace:*",
     "typescript": "^5"
   }
 }

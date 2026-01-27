@@ -1,4 +1,4 @@
-import { auth } from '@netko/claw-service'
+import { auth } from '@covenote/claw-service'
 import { Elysia } from 'elysia'
 
 export const protectedRoute = new Elysia({ name: 'protected' }).mount(auth.handler).macro({

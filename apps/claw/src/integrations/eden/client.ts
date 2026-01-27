@@ -1,4 +1,4 @@
-import { createTreatyClient } from '@netko/eden-treaty/client'
+import { createTreatyClient } from '@covenote/eden-treaty/client'
 
 /**
  * Get the API base URL from Vite env

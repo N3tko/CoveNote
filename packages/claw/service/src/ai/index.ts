@@ -1,42 +1,47 @@
-import type { ChatMessage, LLMModel } from '@netko/claw-domain'
-import { createOpenRouter } from '@openrouter/ai-sdk-provider'
-import { streamText } from 'ai'
+import type { ChatMessage, LLMModel } from '@covenote/claw-domain'
+import { generateText, streamText } from 'ai'
 
 export * from './status'
 export * from './stream-processor'
+export * from './web-search'
 
 /**
- * AI Service
+ * AI Service using Vercel AI Gateway
  * Handles AI operations including streaming, title generation, and summarization
+ *
+ * Requires AI_GATEWAY_API_KEY environment variable
+ * Model format: provider/model (e.g., openai/gpt-4o-mini, anthropic/claude-3-5-sonnet-latest)
  */
 
 // Default model for system operations (title generation, summarization)
-const SYSTEM_MODEL = 'meta-llama/llama-3.2-3b-instruct:free'
+const SYSTEM_MODEL = 'openai/gpt-4o-mini'
 const TOKEN_THRESHOLD = 0.75 // 75% of context window
 const DEFAULT_CONTEXT_WINDOW = 8000 // Conservative default
 
 /**
- * Stream chat completion from OpenRouter
+ * Get full model identifier for AI Gateway
+ */
+function getModelId(model: LLMModel): string {
+  return `${model.provider}/${model.slug}`
+}
+
+/**
+ * Stream chat completion via AI Gateway
  */
 export async function* streamChatCompletion(params: {
   messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>
   model: LLMModel
-  apiKey: string
   systemPrompt?: string
 }) {
-  const { messages, model, apiKey, systemPrompt } = params
+  const { messages, model, systemPrompt } = params
 
   // Prepend system prompt if provided
   const allMessages = systemPrompt
     ? [{ role: 'system' as const, content: systemPrompt }, ...messages]
     : messages
 
-  const openrouter = createOpenRouter({
-    apiKey,
-  })
-
   const result = await streamText({
-    model: openrouter(model.slug),
+    model: getModelId(model),
     messages: allMessages,
   })
 
@@ -49,19 +54,12 @@ export async function* streamChatCompletion(params: {
 /**
  * Generate a concise title from the first user message
  */
-export async function generateTitle(params: {
-  firstMessage: string
-  apiKey: string
-}): Promise<string> {
-  const { firstMessage, apiKey } = params
-
-  const openrouter = createOpenRouter({
-    apiKey,
-  })
+export async function generateTitle(params: { firstMessage: string }): Promise<string> {
+  const { firstMessage } = params
 
   try {
-    const result = await streamText({
-      model: openrouter(SYSTEM_MODEL),
+    const result = await generateText({
+      model: SYSTEM_MODEL,
       messages: [
         {
           role: 'system',
@@ -75,13 +73,8 @@ export async function generateTitle(params: {
       ],
     })
 
-    let title = ''
-    for await (const textPart of result.textStream) {
-      title += textPart
-    }
-
     // Clean up the title
-    title = title.trim().replace(/^["']|["']$/g, '')
+    const title = result.text.trim().replace(/^["']|["']$/g, '')
 
     return title || 'New Conversation'
   } catch (error) {
@@ -93,24 +86,17 @@ export async function generateTitle(params: {
 /**
  * Summarize older messages when approaching token limit
  */
-export async function summarizeMessages(params: {
-  messages: ChatMessage[]
-  apiKey: string
-}): Promise<string> {
-  const { messages, apiKey } = params
+export async function summarizeMessages(params: { messages: ChatMessage[] }): Promise<string> {
+  const { messages } = params
 
   // Convert messages to text format
   const conversationText = messages
     .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
     .join('\n\n')
 
-  const openrouter = createOpenRouter({
-    apiKey,
-  })
-
   try {
-    const result = await streamText({
-      model: openrouter(SYSTEM_MODEL),
+    const result = await generateText({
+      model: SYSTEM_MODEL,
       messages: [
         {
           role: 'system',
@@ -124,12 +110,7 @@ export async function summarizeMessages(params: {
       ],
     })
 
-    let summary = ''
-    for await (const textPart of result.textStream) {
-      summary += textPart
-    }
-
-    return summary.trim()
+    return result.text.trim()
   } catch (error) {
     console.error('Failed to summarize messages:', error)
     return 'Summary unavailable due to error.'

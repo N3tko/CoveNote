@@ -1,4 +1,4 @@
-import { createLogger } from '@netko/logger'
+import { createLogger } from '@covenote/logger'
 import type { Elysia } from 'elysia'
 
 // Store request start times
@@ -26,7 +26,7 @@ function getErrorMessage(error: unknown): string {
  * @example
  * ```ts
  * import { Elysia } from 'elysia'
- * import { withHttpLogger } from '@netko/elysia-logger'
+ * import { withHttpLogger } from '@covenote/elysia-logger'
  *
  * const app = withHttpLogger(new Elysia())
  *   .get('/', () => 'Hello')

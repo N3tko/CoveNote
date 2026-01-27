@@ -70,14 +70,14 @@ bun run rename:preview @my-company
 
 This command will:
 - ✅ Scan all relevant files (`.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.hbs`, `.md`, `.yml`, `.yaml`)
-- ✅ Show which files contain `@netko`
+- ✅ Show which files contain `@covenote`
 - ✅ Display the number of occurrences per file
 - ✅ Show total files and occurrences that would be updated
 - ❌ **Will NOT modify any files** (preview only)
 
 **Example output:**
 ```
-🔍 Preview: Renaming from @netko to @my-company
+🔍 Preview: Renaming from @covenote to @my-company
 
 📝 Scanning 206 files...
 
@@ -92,13 +92,13 @@ This command will:
 📊 Would update:
    • Files: 79
    • Occurrences: 180
-   • Old scope: @netko
+   • Old scope: @covenote
    • New scope: @my-company
 ```
 
 #### Rename Project
 
-Rename the entire project scope from `@netko` to your organization's scope:
+Rename the entire project scope from `@covenote` to your organization's scope:
 
 ```bash
 # Using CLI directly
@@ -109,7 +109,7 @@ bun run rename @my-company
 ```
 
 This command will:
-- ✅ Replace all occurrences of `@netko` with your new scope
+- ✅ Replace all occurrences of `@covenote` with your new scope
 - ✅ Update all `package.json` files
 - ✅ Update all imports in TypeScript/JavaScript files
 - ✅ Update generator templates (`.hbs` files)

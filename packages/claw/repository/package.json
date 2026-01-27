@@ -1,5 +1,5 @@
 {
-  "name": "@netko/claw-repository",
+  "name": "@covenote/claw-repository",
   "exports": {
     ".": "./src/index.ts"
   },
@@ -13,9 +13,9 @@
     "@types/bun": "^1.3.4"
   },
   "dependencies": {
-    "@netko/claw-config": "workspace:*",
-    "@netko/claw-domain": "workspace:*",
-    "@netko/typescript-config": "workspace:*",
+    "@covenote/claw-config": "workspace:*",
+    "@covenote/claw-domain": "workspace:*",
+    "@covenote/typescript-config": "workspace:*",
     "drizzle-orm": "^0.45.1",
     "ioredis": "^5.8.0",
     "postgres": "^3.4.7",

@@ -1,5 +1,5 @@
 {
-  "name": "@netko/{{ name }}-repository",
+  "name": "@covenote/{{ name }}-repository",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
@@ -12,9 +12,9 @@
     "db:seed": "bun run ./src/db/seed.ts"
   },
   "dependencies": {
-    "@netko/{{ name }}-config": "workspace:*",
-    "@netko/{{ name }}-domain": "workspace:*",
-    "@netko/typescript-config": "workspace:*",
+    "@covenote/{{ name }}-config": "workspace:*",
+    "@covenote/{{ name }}-domain": "workspace:*",
+    "@covenote/typescript-config": "workspace:*",
     "drizzle-orm": "^0.44.6",
     "ioredis": "^5.8.0",
     "postgres": "^3.4.7",

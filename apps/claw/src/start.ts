@@ -1,4 +1,4 @@
-import { logger } from '@netko/logger'
+import { logger } from '@covenote/logger'
 import { createMiddleware, createStart } from '@tanstack/react-start'
 
 /**

@@ -1,13 +1,13 @@
 import { passkey } from '@better-auth/passkey'
-import { clawEnvConfig } from '@netko/claw-config'
-import { account, jwks, session, user, verification } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import { clawEnvConfig } from '@covenote/claw-config'
+import { account, jwks, session, user, verification } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { jwt, lastLoginMethod, magicLink, openAPI } from 'better-auth/plugins'
 
 export const auth = betterAuth({
-  appName: 'Netko',
+  appName: 'CoveNote',
   baseURL: clawEnvConfig.app.baseUrl,
   basePath: '/api/auth',
   database: drizzleAdapter(db, {
@@ -22,7 +22,7 @@ export const auth = betterAuth({
     },
   }),
   advanced: {
-    cookiePrefix: 'netko',
+    cookiePrefix: 'covenote',
   },
   account: {
     encryptOAuthTokens: true,

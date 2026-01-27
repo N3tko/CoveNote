@@ -1,5 +1,5 @@
-import { type Chat, type ChatInsert, chatTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import { type Chat, type ChatInsert, chatTable } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 
 export const createChat = async (data: ChatInsert): Promise<Chat | undefined> => {
   return await db

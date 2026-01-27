@@ -2,7 +2,7 @@ import pino from 'pino'
 import pretty from 'pino-pretty'
 
 /**
- * ✧･ﾟ: *✧･ﾟ:* NETKO KAWAII LOGGER *:･ﾟ✧*:･ﾟ✧
+ * ✧･ﾟ: *✧･ﾟ:* COVENOTE KAWAII LOGGER *:･ﾟ✧*:･ﾟ✧
  *
  * A logger with attitude! Japanese-style with sass.
  * Pretty in dev, serious in prod (but still cute at heart).

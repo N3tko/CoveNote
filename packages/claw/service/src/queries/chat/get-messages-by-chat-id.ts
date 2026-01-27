@@ -3,8 +3,8 @@ import {
   type ChatMessage,
   chatMessageTable,
   chatTable,
-} from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+} from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { and, asc, eq } from 'drizzle-orm'
 
 export const getMessagesByChatId = async (

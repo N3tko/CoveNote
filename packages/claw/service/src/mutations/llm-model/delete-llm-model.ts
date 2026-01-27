@@ -1,5 +1,5 @@
-import { type AuthenticatedContext, llmModelTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import { type AuthenticatedContext, llmModelTable } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { and, eq } from 'drizzle-orm'
 
 export const deleteLLMModel = async (id: string, ctx?: AuthenticatedContext): Promise<void> => {

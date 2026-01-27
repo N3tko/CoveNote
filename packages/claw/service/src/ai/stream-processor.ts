@@ -1,5 +1,5 @@
-import type { AuthenticatedContext, ChatMessage, LLMModel } from '@netko/claw-domain'
-import { createLogger } from '@netko/logger'
+import type { AuthenticatedContext, ChatMessage, LLMModel } from '@covenote/claw-domain'
+import { createLogger } from '@covenote/logger'
 import { RedisClient } from 'bun'
 import {
   generateTitle,
@@ -16,7 +16,6 @@ export interface StreamProcessorOptions {
   userMessageId: string
   assistantId?: string
   modelId: string
-  apiKey: string
   systemPrompt?: string
   ctx: AuthenticatedContext
 }
@@ -30,7 +29,7 @@ export async function processLLMStream(
   messages: ChatMessage[],
   model: LLMModel,
 ): Promise<void> {
-  const { chatId, assistantId, modelId, apiKey, systemPrompt } = options
+  const { chatId, assistantId, modelId, systemPrompt } = options
 
   // Use environment variable directly to avoid exposing config to client
   const redisUrl = process.env.CACHE_URL
@@ -67,7 +66,6 @@ export async function processLLMStream(
       if (toSummarize.length > 0) {
         const summary = await summarizeMessages({
           messages: toSummarize,
-          apiKey,
         })
 
         // Save system message with summary (import dynamically to avoid circular deps)
@@ -121,7 +119,6 @@ export async function processLLMStream(
     const stream = streamChatCompletion({
       messages: aiMessages,
       model,
-      apiKey,
       systemPrompt,
     })
 
@@ -173,7 +170,6 @@ export async function processLLMStream(
       if (firstUserMessage) {
         const title = await generateTitle({
           firstMessage: firstUserMessage.content,
-          apiKey,
         })
 
         // Update chat title

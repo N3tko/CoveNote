@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { ChatInterface } from '@/components/chat/chat-interface'
 
 export const Route = createFileRoute('/_authed/chat/$chatId')({
-  component: RouteComponent,
+  component: ChatPage,
 })
 
-function RouteComponent() {
-  return <div className="flex h-full flex-col" />
+function ChatPage() {
+  const { chatId } = Route.useParams()
+  return <ChatInterface chatId={chatId} />
 }

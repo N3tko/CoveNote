@@ -1,4 +1,4 @@
-import { boolean, pgEnum, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core'
+import { boolean, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { user } from './auth'
 
 /**
@@ -8,7 +8,7 @@ import { user } from './auth'
  *        /\_/\
  *       ( o.o )
  */
-export const llmProviderEnum = pgEnum('provider', ['openai', 'ollama', 'openrouter', 'custom'])
+export const llmProviderEnum = pgEnum('provider', ['openai', 'anthropic', 'google'])
 
 /**
  * +---------------------+
@@ -36,40 +36,6 @@ export const llmModelTable = pgTable('llm_model', {
     .$onUpdate(() => new Date())
     .notNull(),
 })
-
-/**
- * +---------------------+
- * | LLM BYOK Table     |
- * +---------------------+
- *        /\_/\
- *       ( o.o )
- */
-export const llmByokTable = pgTable(
-  'llm_byok',
-  {
-    id: uuid('id')
-      .primaryKey()
-      .$defaultFn(() => Bun.randomUUIDv7().toString()),
-    provider: llmProviderEnum('provider').notNull(),
-    encryptedKey: text('encrypted_key').notNull(),
-    isActive: boolean('is_active').notNull().default(true),
-    createdBy: text('created_by')
-      .references(() => user.id, { onDelete: 'cascade' })
-      .notNull(),
-    createdAt: timestamp('created_at')
-      .$defaultFn(() => new Date())
-      .notNull(),
-    updatedAt: timestamp('updated_at')
-      .$defaultFn(() => new Date())
-      .$onUpdate(() => new Date())
-      .notNull(),
-  },
-  (table) => [
-    {
-      unique: unique('user_provider_unique').on(table.provider, table.createdBy),
-    },
-  ],
-)
 
 /**
  * +---------------------+

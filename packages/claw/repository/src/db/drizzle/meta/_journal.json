@@ -15,6 +15,13 @@
       "when": 1765784960120,
       "tag": "0001_premium_bullseye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769387048610,
+      "tag": "0002_lucky_bushwacker",
+      "breakpoints": true
     }
   ]
 }

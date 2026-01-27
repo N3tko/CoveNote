@@ -1,5 +1,5 @@
-import { type LLMModel, llmModelTable } from '@netko/claw-domain'
-import { db } from '@netko/claw-repository'
+import { type LLMModel, llmModelTable } from '@covenote/claw-domain'
+import { db } from '@covenote/claw-repository'
 import { and, eq, or } from 'drizzle-orm'
 
 export const getUserActiveLLMModels = async (userId: string): Promise<LLMModel[]> => {

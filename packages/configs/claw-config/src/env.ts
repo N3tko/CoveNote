@@ -1,4 +1,4 @@
-import { type ClawConfig, ClawConfigSchema } from '@netko/claw-domain'
+import { type ClawConfig, ClawConfigSchema } from '@covenote/claw-domain'
 
 const isEnabled = (args: (string | undefined)[]): boolean => {
   return args.every((arg) => arg !== undefined && arg !== '')
@@ -17,6 +17,10 @@ const clawConfig: ClawConfig = {
   },
   db: {
     url: process.env.DATABASE_URL ?? '',
+  },
+  ai: {
+    gatewayApiKey: process.env.AI_GATEWAY_API_KEY,
+    exaApiKey: process.env.EXA_API_KEY,
   },
   auth: {
     secret: process.env.AUTH_SECRET,

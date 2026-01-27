@@ -1,5 +1,5 @@
 {
-  "name": "@netko/cli",
+  "name": "@covenote/cli",
   "version": "0.1.0",
   "type": "module",
   "bin": {
@@ -12,7 +12,7 @@
     "cli": "bun run src/index.ts"
   },
   "dependencies": {
-    "@netko/typescript-config": "workspace:*",
+    "@covenote/typescript-config": "workspace:*",
     "glob": "^11.0.0"
   },
   "devDependencies": {

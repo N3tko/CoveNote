@@ -6,10 +6,10 @@ import { getRootDir } from '../utils/shell'
 /**
  * ✧･ﾟ: *✧･ﾟ:* RENAME PROJECT COMMAND *:･ﾟ✧*:･ﾟ✧
  *
- * Renames the project scope from @netko to a new name (◕‿◕✿)
+ * Renames the project scope from @covenote to a new name (◕‿◕✿)
  */
 
-const CURRENT_SCOPE = '@netko'
+const CURRENT_SCOPE = '@covenote'
 
 /**
  * Rename the entire project scope

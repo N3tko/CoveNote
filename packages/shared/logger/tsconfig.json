@@ -1,5 +1,5 @@
 {
-  "extends": "@netko/typescript-config/base.json",
+  "extends": "@covenote/typescript-config/base.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"

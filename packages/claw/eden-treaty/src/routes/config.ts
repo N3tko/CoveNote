@@ -1,4 +1,4 @@
-import { clawEnvConfig } from '@netko/claw-config'
+import { clawEnvConfig } from '@covenote/claw-config'
 import { Elysia, t } from 'elysia'
 
 const SocialProviderSchema = t.Object({

@@ -1,4 +1,4 @@
-import { createLogger } from '@netko/logger'
+import { createLogger } from '@covenote/logger'
 import { RedisClient } from 'bun'
 
 const logger = createLogger('ai:status')

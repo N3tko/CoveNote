@@ -1,4 +1,4 @@
-import { clawEnvConfig } from '@netko/claw-config'
+import { clawEnvConfig } from '@covenote/claw-config'
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 export async function validateToken(token: string) {
