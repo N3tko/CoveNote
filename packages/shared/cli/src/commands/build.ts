@@ -32,7 +32,7 @@ export async function build(args: string[]) {
 
   console.log(`📦 Building ${appName} for production...`)
 
-  await run(['turbo', 'run', 'build', '--filter', `${appName}-app`], {
+  await run(['turbo', 'run', 'build', '--filter', `@covenote/${appName}`], {
     cwd: getRootDir(),
     env: appEnv,
   })
