@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "repo dev --app claw",
     "serve": "NODE_ENV=development bunx --bun vite dev",
-    "start": "NODE_ENV=production bunx --bun vite preview",
-    "build": "NODE_ENV=production bunx --bun vite build",
+    "start": "repo docker:up --app claw && repo db:push --app claw && repo db:seed --app claw && NODE_ENV=production bunx --bun vite preview",
+    "build": "repo build --app claw && repo db:push --app claw && repo db:seed --app claw",
     "docker:up": "repo docker:up --app claw",
     "docker:down": "repo docker:down --app claw",
     "db:migrate": "repo db:migrate --app claw",
