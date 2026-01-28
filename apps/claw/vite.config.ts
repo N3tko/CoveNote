@@ -17,7 +17,7 @@ export default defineConfig({
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
-    nitro({ preset: 'bun' }),
+    nitro(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),
